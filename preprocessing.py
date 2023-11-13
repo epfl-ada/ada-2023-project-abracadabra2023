@@ -62,12 +62,12 @@ def import_and_clean_data():
 
     # Decode URL-encoded names
     articles[0] = articles[0].apply(unquote)
-    articles = articles.rename(columns={0: "article"})
     categories[0] = categories[0].apply(unquote)
     links[0] = links[0].apply(unquote)
     links[1] = links[1].apply(unquote)
 
     # Rename some columns for convenience
+    articles = articles.rename(columns={0: "article"})
     categories = categories.rename(columns={0: "article"})
     categories = categories.rename(columns={1: "categories"})
     links.columns = ["linkSource", "linkTarget"]
@@ -105,7 +105,7 @@ def import_and_clean_data():
     # adding path length column
     paths_finished["path_length"] = paths_finished["path"].apply(
         lambda row: len(row) - 1
-    )
+    ).astype(int)
 
     # keeping only finished paths with lengths below the 99th percentile (to exclude outliers)
     bound = 0.99
@@ -114,13 +114,11 @@ def import_and_clean_data():
 
     # adding theoretical shortest path column
     paths_finished["shortest_path"] = paths_finished["path"].apply(
-        lambda path: get_shortest_length(articles, shortest_paths_matrix, path)
-    )
+        lambda path: get_shortest_length(list(articles), shortest_paths_matrix, path)
+    ).astype(int)
 
     # compute difference between shortest paths and taken path
-    paths_finished["diff_length"] = paths_finished["path_length"].astype(
-        int
-    ) - paths_finished["shortest_path"].astype(int)
+    paths_finished["diff_length"] = paths_finished["path_length"] - paths_finished["shortest_path"]
 
     return (
         articles,
@@ -131,7 +129,9 @@ def import_and_clean_data():
     )
 
 
-def get_shortest_length(articles, path_matrix, path):
+def get_shortest_length(
+    articles_names: list[str], path_matrix: np.ndarray, path: list[str]
+):
     """
     get shortest path length for path
     input:
@@ -139,9 +139,12 @@ def get_shortest_length(articles, path_matrix, path):
         path_matrix: matrix with element length of shortest paths between articles
         path: list of articles from starting article to target article
     """
+    # to match articles format
+    path_unquote = list(map(unquote, path))
+
     # get index
-    index_starting_article = np.where(path.split(";")[0] == articles)[0][0]
-    index_target_article = np.where(path.split(";")[-1] == articles)[0][0]
+    index_starting_article = np.where(path_unquote[0] == articles_names)[0][0]
+    index_target_article = np.where(path_unquote[-1] == articles_names)[0][0]
 
     # store length
     try:
