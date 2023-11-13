@@ -34,8 +34,14 @@ shortest_paths_path = graph_data_prefix_path + "/shortest-path-distance-matrix.t
 
 def import_and_clean_data():
     # import TSV file into DataFrame
-    articles = pd.read_csv(
-        articles_path, delimiter="\t", comment="#", encoding="utf-8", header=None
+    # articles = pd.read_csv(
+    #     articles_path, delimiter="\t", comment="#", encoding="utf-8", header=None
+    # )
+    articles = np.genfromtxt(
+        articles_path,
+        comments="#",
+        dtype="str",
+        autostrip=True,
     )
     categories = pd.read_csv(
         categories_path, delimiter="\t", comment="#", encoding="utf-8", header=None
@@ -61,13 +67,11 @@ def import_and_clean_data():
     )
 
     # Decode URL-encoded names
-    articles[0] = articles[0].apply(unquote)
     categories[0] = categories[0].apply(unquote)
     links[0] = links[0].apply(unquote)
     links[1] = links[1].apply(unquote)
 
     # Rename some columns for convenience
-    articles = articles.rename(columns={0: "article"})
     categories = categories.rename(columns={0: "article"})
     categories = categories.rename(columns={1: "categories"})
     links.columns = ["linkSource", "linkTarget"]
@@ -103,9 +107,9 @@ def import_and_clean_data():
 
     ## add different miscalleneous columns -------------------------------------------------
     # adding path length column
-    paths_finished["path_length"] = paths_finished["path"].apply(
-        lambda row: len(row) - 1
-    ).astype(int)
+    paths_finished["path_length"] = (
+        paths_finished["path"].apply(lambda row: len(row) - 1).astype(int)
+    )
 
     # keeping only finished paths with lengths below the 99th percentile (to exclude outliers)
     bound = 0.99
@@ -113,13 +117,23 @@ def import_and_clean_data():
     paths_finished = paths_finished[paths_finished["path_length"] <= bound_path_lengths]
 
     # adding theoretical shortest path column
-    # print(articles.columns)
-    paths_finished["shortest_path"] = paths_finished["path"].apply(
-        lambda path: get_shortest_length(articles["article"], shortest_paths_matrix, path)
-    ).astype(int)
+    paths_finished["shortest_path"] = (
+        paths_finished["path"]
+        .apply(lambda path: get_shortest_length(articles, shortest_paths_matrix, path))
+        .astype(int)
+    )
 
     # compute difference between shortest paths and taken path
-    paths_finished["diff_length"] = paths_finished["path_length"] - paths_finished["shortest_path"]
+    paths_finished["diff_length"] = (
+        paths_finished["path_length"] - paths_finished["shortest_path"]
+    )
+
+    # format articles, paths (spaces, accents etc.)
+    articles = pd.DataFrame(list(map(unquote, articles)))
+    articles = articles.rename(columns={0: "article"})
+    paths_finished["path"] = paths_finished["path"].apply(
+        lambda path: unquote(";".join(path)).split(";")
+    )
 
     return (
         articles,
@@ -131,7 +145,7 @@ def import_and_clean_data():
 
 
 def get_shortest_length(
-    articles_names: pd.Series, path_matrix: np.ndarray, path: list[str]
+    articles_names: pd.DataFrame, path_matrix: np.ndarray, path: list[str]
 ):
     """
     get shortest path length for path
@@ -140,12 +154,9 @@ def get_shortest_length(
         path_matrix: matrix with element length of shortest paths between articles
         path: list of articles from starting article to target article
     """
-    # to match articles format
-    path_unquote = list(map(unquote, path))
-
     # get index
-    index_starting_article = np.where(path_unquote[0] == articles_names)[0][0]
-    index_target_article = np.where(path_unquote[-1] == articles_names)[0][0]
+    index_starting_article = np.where(path[0] == articles_names)[0][0]
+    index_target_article = np.where(path[-1] == articles_names)[0][0]
 
     # store length
     try:
