@@ -113,8 +113,9 @@ def import_and_clean_data():
     paths_finished = paths_finished[paths_finished["path_length"] <= bound_path_lengths]
 
     # adding theoretical shortest path column
+    # print(articles.columns)
     paths_finished["shortest_path"] = paths_finished["path"].apply(
-        lambda path: get_shortest_length(list(articles), shortest_paths_matrix, path)
+        lambda path: get_shortest_length(articles["article"], shortest_paths_matrix, path)
     ).astype(int)
 
     # compute difference between shortest paths and taken path
@@ -130,7 +131,7 @@ def import_and_clean_data():
 
 
 def get_shortest_length(
-    articles_names: list[str], path_matrix: np.ndarray, path: list[str]
+    articles_names: pd.Series, path_matrix: np.ndarray, path: list[str]
 ):
     """
     get shortest path length for path

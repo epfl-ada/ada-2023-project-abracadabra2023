@@ -681,3 +681,180 @@ def rating_vs_path_length(paths_finished: pd.DataFrame, show: bool = False):
     plt.savefig("Rating_vs_Path_length.png", bbox_inches="tight")
     if show:
         plt.show()
+
+    # Add arrows above bars corresponding to article_categories
+    for category in article_categories:
+        if category in categories_list_all:
+            category_index = categories_list_all.index(category)
+            arrow_position = bar_positions[category_index] - 2.5 * bar_width
+
+            # Check if the arrow will overlap with neighboring bars
+            if (
+                category_index > 0
+                and arrow_position - 0.1 < bar_positions[category_index - 1]
+            ):
+                arrow_position = bar_positions[category_index - 1] + 0.1
+            elif (
+                category_index < len(categories_list_all) - 1
+                and arrow_position + 0.1 > bar_positions[category_index + 1]
+            ):
+                arrow_position = bar_positions[category_index + 1] - 0.1
+
+            plt.annotate(
+                "^",
+                xy=(
+                    arrow_position,
+                    max(counts_all[category_index], ncounts_all[category_index]) + 50,
+                ),
+                ha="center",
+                va="bottom",
+                color="red",
+                fontsize=12,
+            )
+
+    # Save the plot to a file
+    plt.savefig("2_steps_away_plot_combined.png", bbox_inches="tight")
+    plt.show()
+
+    # Create a bar plot for Step 3
+    categories_list_3 = sorted(
+        list(set(combined_counts_3.keys()) | set(combined_ncounts_3.keys()))
+    )
+    counts_3 = [combined_counts_3.get(cat, 0) for cat in categories_list_3]
+    ncounts_3 = [combined_ncounts_3.get(cat, 0) for cat in categories_list_3]
+
+    index_3 = np.arange(len(categories_list_3))
+
+    plt.figure(figsize=(12, 6))
+    plt.bar(index_3, counts_3, color=colors, label="Coincide with UK")
+    plt.bar(
+        index_3 + bar_width,
+        ncounts_3,
+        color="lightcoral",
+        label="Do not coincide with UK",
+    )
+    plt.xlabel("Category")
+    plt.ylabel("Count")
+    plt.title("Category Counts at 3 Steps Away from UK")
+    plt.xticks(index_3 + bar_width / 2, categories_list_3, rotation=90, ha="right")
+    # sets for all plots the same y axis
+    plt.ylim(0, max(counts_all) + 500)
+    plt.legend()
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+
+    # Add arrows above bars corresponding to article_categories
+    for category in article_categories:
+        if category in categories_list_all:
+            category_index = categories_list_all.index(category)
+            arrow_position = bar_positions[category_index] - 2.5 * bar_width
+
+            # Check if the arrow will overlap with neighboring bars
+            if (
+                category_index > 0
+                and arrow_position - 0.1 < bar_positions[category_index - 1]
+            ):
+                arrow_position = bar_positions[category_index - 1] + 0.1
+            elif (
+                category_index < len(categories_list_all) - 1
+                and arrow_position + 0.1 > bar_positions[category_index + 1]
+            ):
+                arrow_position = bar_positions[category_index + 1] - 0.1
+
+            plt.annotate(
+                "^",
+                xy=(
+                    arrow_position,
+                    max(counts_all[category_index], ncounts_all[category_index]) + 50,
+                ),
+                ha="center",
+                va="bottom",
+                color="red",
+                fontsize=12,
+            )
+
+    # Save the plot to a file
+    plt.savefig("3_steps_away_plot_combined.png", bbox_inches="tight")
+    plt.show()
+
+    # Create a combined bar plot for all steps
+    categories_list_all = sorted(
+        list(set(combined_counts_all.keys()) | set(combined_ncounts_all.keys()))
+    )
+    counts_all = [combined_counts_all.get(cat, 0) for cat in categories_list_all]
+    ncounts_all = [combined_ncounts_all.get(cat, 0) for cat in categories_list_all]
+
+    index_all = np.arange(len(categories_list_all))
+
+    plt.figure(figsize=(12, 6))
+    plt.bar(index_all, counts_all, color=colors, label="Coincide with UK")
+    plt.bar(
+        index_all + bar_width,
+        ncounts_all,
+        color="lightcoral",
+        label="Do not coincide with UK",
+    )
+    plt.xlabel("Category")
+    plt.ylabel("Count")
+    plt.title("Category Counts for All Steps")
+    plt.xticks(index_all + bar_width / 2, categories_list_all, rotation=90, ha="right")
+    # sets for all plots the same y axis
+    plt.ylim(0, max(counts_all) + 500)
+    plt.legend()
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+
+    # Add arrows above bars corresponding to article_categories
+    for category in article_categories:
+        if category in categories_list_all:
+            category_index = categories_list_all.index(category)
+            arrow_position = bar_positions[category_index] - 2.5 * bar_width
+
+            # Check if the arrow will overlap with neighboring bars
+            if (
+                category_index > 0
+                and arrow_position - 0.1 < bar_positions[category_index - 1]
+            ):
+                arrow_position = bar_positions[category_index - 1] + 0.1
+            elif (
+                category_index < len(categories_list_all) - 1
+                and arrow_position + 0.1 > bar_positions[category_index + 1]
+            ):
+                arrow_position = bar_positions[category_index + 1] - 0.1
+
+            plt.annotate(
+                "^",
+                xy=(
+                    arrow_position,
+                    max(counts_all[category_index], ncounts_all[category_index]) + 50,
+                ),
+                ha="center",
+                va="bottom",
+                color="red",
+                fontsize=12,
+            )
+
+    # Save the plot to a file
+    plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
+    plt.show()
+
+
+#################################################################################################
+
+
+# Rating vs path length
+def rating_vs_path_length(paths_finished: pd.DataFrame, show: bool = False):
+    sns.set_theme(style="whitegrid")
+
+    plt.figure(figsize=(10, 9))
+
+    ax = sns.catplot(
+        x="rating", y="length_path", data=paths_finished, kind="bar", palette="coolwarm"
+    )
+    ax.set_axis_labels("Rating (where 0 = no rating)", "Length")
+    ax.despine(left=True)
+    plt.title("Length of the path in function of the rating")
+    # Save the plot to a file
+    plt.savefig("Rating_vs_Path_length.png", bbox_inches="tight")
+    if show:
+        plt.show()
