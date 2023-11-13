@@ -3,7 +3,7 @@ import requests
 import tarfile
 
 
-def download_and_extract(url, destination_folder):
+def download_and_extract(url, destination_folder, subfolder=None):
     # Create the destination folder if it doesn't exist
     os.makedirs(destination_folder, exist_ok=True)
 
@@ -22,36 +22,42 @@ def download_and_extract(url, destination_folder):
 
     # Extract the contents of the tar.gz file*
     print("Extracting the archive")
+    eextracted_folder_name = None
     with tarfile.open(file_name, "r:gz") as tar:
         tar.extractall(destination_folder)
+        # get the name of the extracted folder
+        extracted_folder_name = os.path.commonprefix(tar.getnames())
 
-    # Go through the data folder and copy the files from subfolders to the data folder
-    for root, dirs, files in os.walk(destination_folder):
-        for name in files:
-            if root != destination_folder:
-                # if the file already exists in the data folder, overwrite it
-                if os.path.exists(os.path.join(destination_folder, name)):
-                    os.remove(os.path.join(destination_folder, name))
-                os.rename(
-                    os.path.join(root, name), os.path.join(destination_folder, name)
-                )
-            # remove the empty subfolders
-            if not os.listdir(root):
-                os.rmdir(root)
+    # rename the folder to subfolder
+    if subfolder is not None and extracted_folder_name is not None:
+        if os.path.exists(os.path.join(destination_folder, subfolder)):
+            for file in os.listdir(os.path.join(destination_folder, subfolder)):
+                os.remove(os.path.join(destination_folder, subfolder, file))
+            os.rmdir(os.path.join(destination_folder, subfolder))
+        os.rename(
+            os.path.join(destination_folder, extracted_folder_name),
+            os.path.join(destination_folder, subfolder),
+        )
 
     print(f"Archive downloaded and extracted to {destination_folder}")
 
 
 if __name__ == "__main__":
-    # URL of the archive
-    archive_url = (
-        "https://snap.stanford.edu/data/wikispeedia/wikispeedia_paths-and-graph.tar.gz"
-    )
-
     # Destination folder for extraction
     destination_folder = "data"
-
     # Download and extract the archive
-    download_and_extract(archive_url, destination_folder + "/graph")
-    # download_and_extract("https://snap.stanford.edu/data/wikispeedia/wikispeedia_articles_plaintext.tar.gz", destination_folder)
-    # download_and_extract("https://snap.stanford.edu/data/wikispeedia/wikispeedia_articles_html.tar.gz", destination_folder)
+    download_and_extract(
+        "https://snap.stanford.edu/data/wikispeedia/wikispeedia_paths-and-graph.tar.gz",
+        destination_folder,
+        subfolder="graph",
+    )
+    download_and_extract(
+        "https://snap.stanford.edu/data/wikispeedia/wikispeedia_articles_plaintext.tar.gz",
+        destination_folder,
+        subfolder="articles_plain_text",
+    )
+    # download_and_extract(
+    #     "https://snap.stanford.edu/data/wikispeedia/wikispeedia_articles_html.tar.gz",
+    #     destination_folder,
+    #     subfolder="articles_html",
+    # )
