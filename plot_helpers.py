@@ -15,14 +15,14 @@ def plot_most_frequent_articles(data: pd.Series, type: str, pct: float=10, key_w
     """
     most_frequent = data[data >= np.percentile(data, 100 - pct)]
 
-    fig, ax = plt.subplots(figsize=(12,5))
+    plt.figure(figsize=(12,5))
     sns.barplot(
-        x=most_frequent.index, y=most_frequent.values
+        x=most_frequent.index, y=most_frequent.values, palette="coolwarm"
     )
-    ax.set_title(f"Articles that {type} '{key_word}'")
-    ax.set_xlabel("most frequent articles")
-    ax.set_ylabel("%")
+    plt.title(f"Articles that {type} '{key_word}'")
+    plt.xlabel("most frequent articles")
+    plt.ylabel("%")
 
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-
-    return fig, ax
+    plt.rc('xtick', labelsize=8)
+    plt.xticks(rotation=90)  # Rotate x-axis labels for readability
+    # ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
