@@ -15,8 +15,8 @@ __all__ = [
     "most_visited_articles",
     "top_100_visited_articles",
     "top_100_target_articles",
-    "distribution_uk_percentage_position",
-    "study_in_out_neighbors_uk",
+    "distribution_position_percentage",
+    "count_in_out_neighbors",
     "get_categories_uk",
     "separate_categories",
     "analyze_articles_near",
@@ -57,7 +57,7 @@ def path_duration_distribution(paths_finished: pd.DataFrame, show: bool = False)
     plt.figure(figsize=(8, 6))
     sns.histplot(
         paths_finished["durationInSec"],
-        bins=500,
+        bins=100,
         edgecolor="k",
         alpha=0.7,
         log_scale=True,
@@ -79,10 +79,13 @@ def path_length_vs_duration(paths_finished: pd.DataFrame, show: bool = False):
     # Create a scatter plot
     plt.figure(figsize=(8, 6))
     plt.scatter(
-        paths_finished["path_length"], paths_finished["durationInSec"], alpha=0.7
+        paths_finished["path_length"],
+        paths_finished["durationInSec"],
+        alpha=0.7,
     )
     plt.xlabel("Path Length")
     plt.ylabel("Duration (seconds)")
+    plt.yscale("log")
     plt.title("Relationship between Path Length and Duration for Finished Paths")
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     if show:
@@ -98,7 +101,7 @@ def path_length_distribution(paths_finished: pd.DataFrame, show: bool = False):
     plt.figure(figsize=(8, 6))
     sns.histplot(
         paths_finished["path_length"],
-        bins=20,
+        bins=50,
         edgecolor="k",
         alpha=0.7,
         log_scale=True,
@@ -172,7 +175,8 @@ def top_100_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
 
     # Create a bar chart with the 100 most visited articles
     plt.figure(figsize=(13, 6))
-    sns.barplot(x=article_names, y=article_counts, edgecolor="k", alpha=0.7)
+    sns.barplot(x=article_names, y=article_counts, palette="coolwarm")
+    plt.yscale("log")
     plt.xlabel("Visited Article")
     plt.ylabel("Count")
     plt.title("Top 100 Most Visited Articles")
@@ -201,9 +205,8 @@ def top_100_target_articles(paths_finished: pd.DataFrame, show: bool = False):
 
     # Create a bar chart for the top 100 target articles
     plt.figure(figsize=(12, 6))
-    sns.barplot(
-        x=top_100_targets.index, y=top_100_targets.values, edgecolor="k", alpha=0.7
-    )
+    sns.barplot(x=top_100_targets.index, y=top_100_targets.values, palette="coolwarm")
+    plt.yscale("log")
     plt.xlabel("Target Article")
     plt.ylabel("Count")
     plt.title("Top 100 Most Common Target Articles in Finished Paths")
@@ -219,32 +222,34 @@ def top_100_target_articles(paths_finished: pd.DataFrame, show: bool = False):
 #################################################################################################
 
 
-# Distribution of UK percentage position in finished articless
-def distribution_uk_percentage_position(
-    paths_finished: pd.DataFrame, show: bool = False
+# Distribution of the position (in %) of the main articles along finished paths that contain it
+def distribution_position_percentage(
+    paths_finished: pd.DataFrame, main_article: str, show: bool = False
 ):
-    # Define a function to calculate the percentage position of "United_Kingdom" in each path
-    def calculate_percentage_position(path):
+    # Define a function to calculate the position percentage of the main article in each path
+    def compute_position_percentage(path):
         try:
-            uk_position = path.index("United_Kingdom")
-            return uk_position / len(path)
+            return path.index(main_article) / len(path)
         except ValueError:
             return None
 
     # Apply the function to each path and create a new column for percentage position
-    paths_finished["uk_percentage_position"] = paths_finished["path"].apply(
-        calculate_percentage_position
-    )
+    position_percentage = paths_finished["path"].apply(compute_position_percentage)
 
-    # Remove rows where "United_Kingdom" is not in the path
-    paths_with_uk = paths_finished.dropna(subset=["uk_percentage_position"])
-
-    # Create a histogram to visualize the distribution of UK's percentage position in paths
+    # Create a histogram to visualize the distribution of the position percentage of the main article in paths
     plt.figure(figsize=(10, 6))
-    plt.hist(paths_with_uk["uk_percentage_position"], bins=20, edgecolor="k", alpha=0.7)
+    sns.histplot(
+        position_percentage,
+        bins=50,
+        edgecolor="k",
+        alpha=0.7,
+        log_scale=True,
+    )
     plt.xlabel("Percentage Position of United Kingdom in Path")
     plt.ylabel("Frequency")
-    plt.title("Distribution of UK Percentage Position in Finished Paths")
+    plt.title(
+        f"Distribution of the position percentage of {main_article.replace('_',' ')} in Finished Paths"
+    )
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     plt.savefig("Percentage_Pos_UK_Path.png", bbox_inches="tight")
     if show:
@@ -254,33 +259,36 @@ def distribution_uk_percentage_position(
 #################################################################################################
 
 
-def has_uk_in_path(path):
-    return any(article.lower() == "united_kingdom" for article in path)
-
-
-def study_in_out_neighbors_uk(
-    paths_finished: pd.DataFrame, paths_unfinished: pd.DataFrame, show: bool = False
+def count_in_out_neighbors(
+    paths_finished: pd.DataFrame, paths_unfinished: pd.DataFrame, main_article: str
 ):
-    # 1 Number of paths finished that contain United Kingdom
-    paths_with_uk = paths_finished["path"].apply(has_uk_in_path)
-    # Count the number of paths that contain "United_Kingdom"
-    num_paths_with_uk = paths_with_uk.sum()
-    print("Number of paths finished that contain United Kingdom:", num_paths_with_uk)
+    def contains_main_article(path: list[str]):
+        return any(article.lower() == main_article.lower() for article in path)
 
-    # 2 Number of paths unfinished that contain United Kingdom
-    paths_with_uk = paths_unfinished["path"].apply(has_uk_in_path)
-    # Count the number of paths that contain "United_Kingdom"
-    num_paths_with_uk = paths_with_uk.sum()
-    print("Number of paths unfinished that contain United Kingdom:", num_paths_with_uk)
-
-    # 3 Number of paths that finished with United Kingdo
-    finished_with_uk = paths_finished["target_article"].str.contains(
-        "United_Kingdom", case=False
-    )  # Use case=False to make it case-insensitive
-    # Count the number of paths that finished with "United_Kingdom"
-    num_paths_finished_with_uk = finished_with_uk.sum()
+    # number of finished paths that contain the main article
+    paths_with_main_article = paths_finished["path"].apply(contains_main_article)
+    num_paths_with_main_articles = paths_with_main_article.sum()
     print(
-        "Number of paths that finished with United Kingdom:", num_paths_finished_with_uk
+        f"Number of paths finished that contain {main_article.replace('_',' ')}:",
+        num_paths_with_main_articles,
+    )
+
+    # 2 Number of unfinished paths that contain the main article
+    paths_with_main_article = paths_unfinished["path"].apply(contains_main_article)
+    num_paths_with_main_articles = paths_with_main_article.sum()
+    print(
+        f"Number of paths unfinished that contain {main_article.replace('_', '')}",
+        num_paths_with_main_articles,
+    )
+
+    # 3 Number of finished paths that lead to the main article
+    finished_with_main_article = (
+        paths_finished["target_article"].str.lower() == main_article.lower()
+    )
+    num_paths_finished_with_main_article = finished_with_main_article.sum()
+    print(
+        f"Number of paths that finished with {main_article.replace('_', ' ')}:",
+        num_paths_finished_with_main_article,
     )
 
 
@@ -454,9 +462,10 @@ def combine_results(
     ) = analyze_nearby_articles_at_different_distances(
         paths_finished, namecat, categories, article_categories
     )
-    # categories_art = get_categories_art(categories, "United_Kingdom", namecat)
+    categories_art = get_categories_art(categories, "William_Shakespeare", namecat)
 
     # Combine results from all steps
+    # William Shakespeare_
     all_results = results_1_step + results_2_steps + results_3_steps
     all_non = non1 + non2 + non3
 
@@ -471,40 +480,12 @@ def combine_results(
         return category_counts
 
     # Separate the categories and their counts
-    category_counts_1 = cat_count(results_1_step)
-    category_counts_2 = cat_count(results_2_steps)
-    category_counts_3 = cat_count(results_3_steps)
     category_counts_all = cat_count(all_results)
 
     # non-coincide categories
-    category_ncounts_1 = cat_count(non1)
-    category_ncounts_2 = cat_count(non2)
-    category_ncounts_3 = cat_count(non3)
     category_ncounts_all = cat_count(all_non)
 
-
     # Combine coincide and non-coincide counts for each step
-    combined_counts_1 = {
-        cat: category_counts_1.get(cat, 0) for cat in set(category_counts_1)
-    }
-    combined_ncounts_1 = {
-        cat: category_ncounts_1.get(cat, 0) for cat in set(category_ncounts_1)
-    }
-
-    combined_counts_2 = {
-        cat: category_counts_2.get(cat, 0) for cat in set(category_counts_2)
-    }
-    combined_ncounts_2 = {
-        cat: category_ncounts_2.get(cat, 0) for cat in set(category_ncounts_2)
-    }
-
-    combined_counts_3 = {
-        cat: category_counts_3.get(cat, 0) for cat in set(category_counts_3)
-    }
-    combined_ncounts_3 = {
-        cat: category_ncounts_3.get(cat, 0) for cat in set(category_ncounts_3)
-    }
-
     combined_counts_all = {
         cat: category_counts_all.get(cat, 0) for cat in set(category_counts_all)
     }
@@ -521,17 +502,13 @@ def combine_results(
     index_all = np.arange(len(categories_list_all))
 
     # Create a list of colors where highlighted categories are in a different color
-    colors = [
-        "skyblue" if cat in article_categories else "gold"
-        for cat in categories_list_all
-    ]
     # this helps position the arrow n the right bar for the plots below
     # index_all = np.arange(len(categories_list_all))
     bar_width = 0.35
     bar_positions = index_all + bar_width / 2
 
     plt.figure(figsize=(12, 6))
-    plt.bar(index_all, counts_all, color=colors, label="Coincide with UK")
+    plt.bar(index_all, counts_all, color="skyblue", label="Coincide with UK")
     plt.bar(
         index_all + bar_width,
         ncounts_all,
@@ -542,17 +519,17 @@ def combine_results(
     plt.ylabel("Count")
     plt.title("Category Counts for All Steps")
     plt.xticks(index_all + bar_width / 2, categories_list_all, rotation=90, ha="right")
-    # sets for all plots the same y axis
-    plt.ylim(0, max(counts_all) + 500)
+    # plt.ylim(0, max(counts_all) + 500)
     plt.legend()
+    plt.rc("xtick", labelsize=6)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     plt.tight_layout()
 
     # Add arrows above bars corresponding to article_categories
-    for category in article_categories:
+    for category in categories_art:
         if category in categories_list_all:
             category_index = categories_list_all.index(category)
-            arrow_position = bar_positions[category_index] - 1 * bar_width
+            arrow_position = bar_positions[category_index] + 0.5 * bar_width
 
             # Check if the arrow will overlap with neighboring bars
             if (
@@ -562,7 +539,7 @@ def combine_results(
                 arrow_position = bar_positions[category_index - 0] + 0.1
             elif (
                 category_index < len(categories_list_all) - 0
-                and arrow_position + -1.1 > bar_positions[category_index + 1]
+                and arrow_position + -1.1 > bar_positions[category_index]
             ):
                 arrow_position = bar_positions[category_index + 0] - 0.1
 
@@ -580,192 +557,6 @@ def combine_results(
 
     # Save the plot to a file
     # plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
-    plt.show()
-
-    # Create a bar plot for Step 1
-    categories_list_1 = sorted(
-        list(set(combined_counts_1.keys()) | set(combined_ncounts_1.keys()))
-    )
-    counts_1 = [combined_counts_1.get(cat, 0) for cat in categories_list_1]
-    ncounts_1 = [combined_ncounts_1.get(cat, 0) for cat in categories_list_1]
-
-    index_1 = np.arange(len(categories_list_1))
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(index_1, counts_1, color="skyblue", label="Coincide with UK")
-    plt.bar(
-        index_1 + bar_width,
-        ncounts_1,
-        color="lightcoral",
-        label="Do not coincide with UK",
-    )
-    plt.xlabel("Category")
-    plt.ylabel("Count")
-    plt.title("Category Counts at 1 Step Away from UK")
-    plt.rc("xtick", labelsize=6)
-    plt.xticks(index_1 + bar_width / 2, categories_list_1, rotation=90, ha="right")
-    # sets for all plots the same y axis
-    # plt.ylim(0, max(counts_all) + 500)
-    plt.legend()
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.tight_layout()
-
-    # Add arrows above bars corresponding to article_categories
-    for category in article_categories:
-        if category in categories_list_1:
-            category_index = categories_list_1.index(category)
-            arrow_position = bar_positions[category_index] - 1 * bar_width
-
-            # Check if the arrow will overlap with neighboring bars
-            if (
-                category_index > 0
-                and arrow_position - 0.1 < bar_positions[category_index - 1]
-            ):
-                arrow_position = bar_positions[category_index - 1] + 0.1
-            elif (
-                category_index < len(categories_list_1) - 1
-                and arrow_position + 0.1 > bar_positions[category_index + 1]
-            ):
-                arrow_position = bar_positions[category_index + 1] - 0.1
-
-            plt.annotate(
-                "v",
-                xy=(
-                    arrow_position,
-                    max(counts_all[category_index], ncounts_all[category_index]) + 50,
-                ),
-                ha="center",
-                va="bottom",
-                color="red",
-                fontsize=12,
-            )
-
-    # Save the plot to a file
-    plt.savefig("1_step_away_plot_combined.png", bbox_inches="tight")
-    plt.show()
-
-    # Create a bar plot for Step 2
-    categories_list_2 = sorted(
-        list(set(combined_counts_2.keys()) | set(combined_ncounts_2.keys()))
-    )
-    counts_2 = [combined_counts_2.get(cat, 0) for cat in categories_list_2]
-    ncounts_2 = [combined_ncounts_2.get(cat, 0) for cat in categories_list_2]
-
-    index_2 = np.arange(len(categories_list_2))
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(index_2, counts_2, color=colors, label="Coincide with UK")
-    plt.bar(
-        index_2 + bar_width,
-        ncounts_2,
-        color="lightcoral",
-        label="Do not coincide with UK",
-    )
-    plt.xlabel("Category")
-    plt.ylabel("Count")
-    plt.title("Category Counts at 2 Steps Away from UK")
-    plt.rc("xtick", labelsize=6)
-    plt.xticks(index_2 + bar_width / 2, categories_list_2, rotation=90, ha="right")
-    # sets for all plots the same y axis
-    # plt.ylim(0, max(counts_all) + 500)
-    plt.legend()
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.tight_layout()
-
-    # Add arrows above bars corresponding to article_categories
-    for category in article_categories:
-        if category in categories_list_2:
-            category_index = categories_list_2.index(category)
-            arrow_position = bar_positions[category_index] - 1 * bar_width
-
-            # Check if the arrow will overlap with neighboring bars
-            if (
-                category_index > 0
-                and arrow_position - 0.1 < bar_positions[category_index - 1]
-            ):
-                arrow_position = bar_positions[category_index - 1] + 0.1
-            elif (
-                category_index < len(categories_list_2) - 1
-                and arrow_position + 0.1 > bar_positions[category_index + 1]
-            ):
-                arrow_position = bar_positions[category_index + 1] - 0.1
-
-            plt.annotate(
-                "v",
-                xy=(
-                    arrow_position,
-                    max(counts_all[category_index], ncounts_all[category_index]) + 50,
-                ),
-                ha="center",
-                va="bottom",
-                color="red",
-                fontsize=12,
-            )
-
-    # Save the plot to a file
-    plt.savefig("2_steps_away_plot_combined.png", bbox_inches="tight")
-    plt.show()
-
-    # Create a bar plot for Step 3
-    categories_list_3 = sorted(
-        list(set(combined_counts_3.keys()) | set(combined_ncounts_3.keys()))
-    )
-    counts_3 = [combined_counts_3.get(cat, 0) for cat in categories_list_3]
-    ncounts_3 = [combined_ncounts_3.get(cat, 0) for cat in categories_list_3]
-
-    index_3 = np.arange(len(categories_list_3))
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(index_3, counts_3, color=colors, label="Coincide with UK")
-    plt.bar(
-        index_3 + bar_width,
-        ncounts_3,
-        color="lightcoral",
-        label="Do not coincide with UK",
-    )
-    plt.xlabel("Category")
-    plt.ylabel("Count")
-    plt.title("Category Counts at 3 Steps Away from UK")
-    plt.rc("xtick", labelsize=6)
-    plt.xticks(index_3 + bar_width / 2, categories_list_3, rotation=90, ha="right")
-    # sets for all plots the same y axis
-    # plt.ylim(0, max(counts_all) + 500)
-    plt.legend()
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.tight_layout()
-
-    # Add arrows above bars corresponding to article_categories
-    for category in article_categories:
-        if category in categories_list_3:
-            category_index = categories_list_3.index(category)
-            arrow_position = bar_positions[category_index] - 1.5 * bar_width
-
-            # Check if the arrow will overlap with neighboring bars
-            if (
-                category_index > 0
-                and arrow_position - 0.1 < bar_positions[category_index - 1]
-            ):
-                arrow_position = bar_positions[category_index - 1] + 0.1
-            elif (
-                category_index < len(categories_list_3) - 1
-                and arrow_position + 0.1 > bar_positions[category_index + 1]
-            ):
-                arrow_position = bar_positions[category_index + 1] - 0.1
-
-            plt.annotate(
-                "v",
-                xy=(
-                    arrow_position,
-                    max(counts_all[category_index], ncounts_all[category_index]) + 50,
-                ),
-                ha="center",
-                va="bottom",
-                color="red",
-                fontsize=12,
-            )
-
-    # Save the plot to a file
-    plt.savefig("3_steps_away_plot_combined.png", bbox_inches="tight")
     plt.show()
 
 
