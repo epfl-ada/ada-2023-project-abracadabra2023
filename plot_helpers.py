@@ -19,10 +19,9 @@ def plot_most_frequent_articles(data: pd.Series, type: str, pct: float=10, key_w
     sns.barplot(
         x=most_frequent.index, y=most_frequent.values, palette="coolwarm"
     )
-    plt.title(f"Articles that {type} '{key_word}'")
+    plt.yscale("log")
     plt.xlabel("most frequent articles")
     plt.ylabel("%")
-
+    plt.title(f"Articles that {type} '{key_word}'")
     plt.rc('xtick', labelsize=8)
     plt.xticks(rotation=90)  # Rotate x-axis labels for readability
-    # ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
