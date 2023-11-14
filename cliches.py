@@ -1,15 +1,25 @@
 import numpy as np
+import pandas as pd
+
+__all__ = [
+    "get_df_keyword",
+    "get_category_keyword",
+    "get_index_keyword_in",
+]
 
 
-def get_df_keyword(df, key_word="United_Kingdom"):
+def get_df_keyword(paths_finished: pd.DataFrame, key_word="United_Kingdom"):
     """
-    given df, get all rows that have 'keyword' in their path.
+    given paths_finished, get all rows that have 'keyword' in their path.
     """
     # get all paths with key_word in it (not matter its place in the path)
-    df_with_key_word = df.iloc[
+    df_with_key_word = paths_finished.iloc[
         np.where(
             np.char.rfind(
-                np.array(df["path"].apply(lambda path: ";".join(path)), dtype="str"),
+                np.array(
+                    paths_finished["path"].apply(lambda path: ";".join(path)),
+                    dtype="str",
+                ),
                 key_word,
             )
             >= 0

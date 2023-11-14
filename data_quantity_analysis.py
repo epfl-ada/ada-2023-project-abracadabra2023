@@ -79,7 +79,9 @@ def path_length_vs_duration(paths_finished: pd.DataFrame, show: bool = False):
     # Create a scatter plot
     plt.figure(figsize=(8, 6))
     plt.scatter(
-        paths_finished["path_length"], paths_finished["durationInSec"], alpha=0.7
+        paths_finished["path_length"],
+        paths_finished["durationInSec"],
+        alpha=0.7,
     )
     plt.xlabel("Path Length")
     plt.ylabel("Duration (seconds)")
@@ -264,23 +266,29 @@ def count_in_out_neighbors(
         return any(article.lower() == main_article.lower() for article in path)
 
     # number of finished paths that contain the main article
-    paths_with_uk = paths_finished["path"].apply(contains_main_article)
-    num_paths_with_uk = paths_with_uk.sum()
-    print("Number of paths finished that contain United Kingdom:", num_paths_with_uk)
+    paths_with_main_article = paths_finished["path"].apply(contains_main_article)
+    num_paths_with_main_articles = paths_with_main_article.sum()
+    print(
+        f"Number of paths finished that contain {main_article.replace('_',' ')}:",
+        num_paths_with_main_articles,
+    )
 
     # 2 Number of unfinished paths that contain the main article
-    paths_with_uk = paths_unfinished["path"].apply(contains_main_article)
-    num_paths_with_uk = paths_with_uk.sum()
-    print("Number of paths unfinished that contain United Kingdom:", num_paths_with_uk)
+    paths_with_main_article = paths_unfinished["path"].apply(contains_main_article)
+    num_paths_with_main_articles = paths_with_main_article.sum()
+    print(
+        f"Number of paths unfinished that contain {main_article.replace('_', '')}",
+        num_paths_with_main_articles,
+    )
 
     # 3 Number of finished paths that lead to the main article
-    finished_with_uk = paths_finished["target_article"].str.contains(
-        main_article, case=False
-    )  # Use case=False to make it case-insensitive
-    num_paths_finished_with_uk = finished_with_uk.sum()
+    finished_with_main_article = (
+        paths_finished["target_article"].str.lower() == main_article.lower()
+    )
+    num_paths_finished_with_main_article = finished_with_main_article.sum()
     print(
         f"Number of paths that finished with {main_article.replace('_', ' ')}:",
-        num_paths_finished_with_uk,
+        num_paths_finished_with_main_article,
     )
 
 
