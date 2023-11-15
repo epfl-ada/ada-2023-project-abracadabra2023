@@ -240,7 +240,7 @@ def distribution_position_percentage(
     plt.figure(figsize=(10, 6))
     sns.histplot(
         position_percentage,
-        bins=50,
+        bins=25,
         edgecolor="k",
         alpha=0.7,
         log_scale=True,
