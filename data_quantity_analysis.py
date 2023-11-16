@@ -17,7 +17,7 @@ __all__ = [
     "top_100_target_articles",
     "distribution_position_percentage",
     "count_in_out_neighbors",
-    "get_categories_uk",
+    "get_categories_main_article",
     "separate_categories",
     "analyze_articles_near",
     "analyze_nearby_articles_at_different_distances",
@@ -169,7 +169,7 @@ def top_100_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
     filtered_articles = [
         (name, count) for (name, count) in top_100_articles if name != "<"
     ]
-
+    
     # Extract article names and counts
     article_names, article_counts = zip(*filtered_articles)
 
@@ -265,7 +265,7 @@ def count_in_out_neighbors(
     def contains_main_article(path: list[str]):
         return any(article.lower() == main_article.lower() for article in path)
 
-    # number of finished paths that contain the main article
+    # 1 number of finished paths that contain the main article
     paths_with_main_article = paths_finished["path"].apply(contains_main_article)
     num_paths_with_main_articles = paths_with_main_article.sum()
     print(
@@ -296,24 +296,25 @@ def count_in_out_neighbors(
 
 
 # 1. Categories of UK
-def get_categories_uk(name_cat: str, categories: pd.DataFrame) -> list[str]:
-    categories_uk = categories.loc[categories["article"] == "United_Kingdom", name_cat]
-    categories_uk = categories_uk.values.flatten()
-    categories_uk = [cat for cat in categories_uk if pd.notna(cat)]
-    categories_uk = list(set(categories_uk))
-    return categories_uk
+def get_categories_main_article(main_article: str, name_cat: str, categories: pd.DataFrame) -> list[str]:
+    categories_main_article = categories.loc[categories["article"] == main_article, name_cat]
+    categories_main_article = categories_main_article.values.flatten()
+    categories_main_article = [cat for cat in categories_main_article if pd.notna(cat)]
+    categories_main_article = list(set(categories_main_article))
+    return categories_main_article
 
 
 def separate_categories(
+    main_article: str,
     categories: pd.DataFrame,
 ) -> tuple[list[str], list[str], list[str], list[str]]:
-    cat_all = get_categories_uk(["category1", "category2", "category3"], categories)
+    cat_all = get_categories_main_article(main_article, ["category1", "category2", "category3"], categories)
     # print("All categories:", cat_all)
-    subcat1 = get_categories_uk(["category1"], categories)
+    subcat1 = get_categories_main_article(main_article, ["category1"], categories)
     # print("Category 1:", cat_1)
-    subcat2 = get_categories_uk(["category2"], categories)
+    subcat2 = get_categories_main_article(main_article, ["category2"], categories)
     # print("Category 2", subcat2)
-    subcat3 = get_categories_uk(["category3"], categories)
+    subcat3 = get_categories_main_article(main_article, ["category3"], categories)
     # print("Category 3", subcat3)
     return cat_all, subcat1, subcat2, subcat3
 
@@ -321,22 +322,23 @@ def separate_categories(
 #################################################################################################
 
 
-# 2. Function that looks at the categories from the articles at one, two, three steps from UK in the game path
+# 2. Function that looks at the categories from the articles at one, two, three steps from the 
+# main_article, in this milestone it is UK, in the game path
 def analyze_articles_near(
     paths_finished: pd.DataFrame,
-    reference_article: str,
+    main_article: str,
     steps_away: int,
     namecat: Union[str, list[str]],
     categories: pd.DataFrame,
-    categories_uk: list,
+    categories_main_article: list,
 ) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
     results = []
     n_results = []
 
     for _, row in paths_finished.iterrows():
         path = row["path"]
-        if reference_article in path:
-            reference_index = path.index(reference_article)
+        if main_article in path:
+            reference_index = path.index(main_article)
             start_index = max(0, reference_index - steps_away)
             end_index = min(len(path), reference_index + steps_away + 1)
             articles_to_analyze = path[start_index:end_index]
@@ -345,7 +347,7 @@ def analyze_articles_near(
             articles_to_analyze = [
                 article
                 for article in articles_to_analyze
-                if article != reference_article
+                if article != main_article
             ]
 
             # Collect the categories of the articles to analyze
@@ -362,10 +364,10 @@ def analyze_articles_near(
 
             # Compare the categories with those of UK
             for category in categories_of_articles_to_analyze:
-                if category in categories_uk:
-                    results.append((reference_article, category))
+                if category in categories_main_article:
+                    results.append((main_article, category))
                 else:
-                    n_results.append((reference_article, category))
+                    n_results.append((main_article, category))
 
     return results, n_results
 
@@ -373,9 +375,10 @@ def analyze_articles_near(
 #################################################################################################
 
 
-# 3. Analyze articles at one, two, and three steps away from UK
+# 3. Analyze articles at one, two, and three steps away from main article
 def analyze_nearby_articles_at_different_distances(
     paths_finished: pd.DataFrame,
+    main_article: str,
     cat_name: Union[str, list[str]],
     categories: pd.DataFrame,
     cat_all: list[str],
@@ -385,7 +388,7 @@ def analyze_nearby_articles_at_different_distances(
     # Last argument to change with desired category/ies
     results_1_step, non1 = analyze_articles_near(
         paths_finished,
-        "United_Kingdom",
+        main_article,
         1,
         cat_name,
         categories,
@@ -393,7 +396,7 @@ def analyze_nearby_articles_at_different_distances(
     )
     results_2_steps, non2 = analyze_articles_near(
         paths_finished,
-        "United_Kingdom",
+        main_article,
         2,
         cat_name,
         categories,
@@ -401,7 +404,7 @@ def analyze_nearby_articles_at_different_distances(
     )
     results_3_steps, non3 = analyze_articles_near(
         paths_finished,
-        "United_Kingdom",
+        main_article,
         3,
         cat_name,
         categories,
@@ -440,10 +443,11 @@ def get_categories_art(
 
 # Combine all the results - show graphs for step 1, 2, 3 and combined - away from the article
 # in question (Here all articles that present United_Kingdom in their name) and show in a bar plot
-# the categories that coicide with thos of the article "UK" and the ones that do not. Moreover:
-# an arrow indicates the categories of the cliché chosen here above
+# the categories that coicide with thos of the main article "UK" and the ones that do not. 
+# Moreover: an arrow indicates the categories of the cliché chosen here above
 def combine_results(
     paths_finished: pd.DataFrame,
+    main_article: str,
     categories: pd.DataFrame,
     article_categories: list[str],
     namecat: Union[str, list[str]] = ["category1", "category2", "category3"],
@@ -460,7 +464,7 @@ def combine_results(
         non2,
         non3,
     ) = analyze_nearby_articles_at_different_distances(
-        paths_finished, namecat, categories, article_categories
+        paths_finished, main_article, namecat, categories, article_categories
     )
     categories_art = get_categories_art(categories, "William_Shakespeare", namecat)
 
