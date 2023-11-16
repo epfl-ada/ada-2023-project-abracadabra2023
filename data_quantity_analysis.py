@@ -295,7 +295,7 @@ def count_in_out_neighbors(
 #################################################################################################
 
 
-# 1. Categories of UK
+# 1. Categories of the main article, in this milestone we consider UK
 def get_categories_main_article(main_article: str, name_cat: str, categories: pd.DataFrame) -> list[str]:
     categories_main_article = categories.loc[categories["article"] == main_article, name_cat]
     categories_main_article = categories_main_article.values.flatten()
@@ -362,7 +362,7 @@ def analyze_articles_near(
                 ]
                 categories_of_articles_to_analyze.extend(article_categories)
 
-            # Compare the categories with those of UK
+            # Compare the categories with those of the main article
             for category in categories_of_articles_to_analyze:
                 if category in categories_main_article:
                     results.append((main_article, category))
@@ -443,7 +443,7 @@ def get_categories_art(
 
 # Combine all the results - show graphs for step 1, 2, 3 and combined - away from the article
 # in question (Here all articles that present United_Kingdom in their name) and show in a bar plot
-# the categories that coicide with thos of the main article "UK" and the ones that do not. 
+# the categories that coincide with those of the main article "UK" and the ones that do not. 
 # Moreover: an arrow indicates the categories of the cliché chosen here above
 def combine_results(
     paths_finished: pd.DataFrame,
