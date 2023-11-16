@@ -13,7 +13,7 @@ def get_df_main_article(paths_finished: pd.DataFrame, main_article="United_Kingd
     """
     given paths_finished, get all rows that have 'keyword' in their path.
     """
-    # get all paths with key_word in it (not matter its place in the path)
+    # get all paths with main_article in it (not matter its place in the path)
     df_with_main_article = paths_finished.iloc[
         np.where(
             np.char.rfind(
@@ -31,7 +31,7 @@ def get_df_main_article(paths_finished: pd.DataFrame, main_article="United_Kingd
 
 def get_category_main_article(main_article, path, categories):
     """
-    return category of element (in path) with keyword in it
+    return category of element (in path) with main_article in it
     """
     article = path[np.where(np.char.rfind(path, main_article) >= 0)[0][0]]
     cat = np.array(categories[categories["article"] == article]["category1"])
@@ -74,14 +74,14 @@ def test_difference_path_length_cliche(
 ):
     """
     test if there is a siginificant difference between the length of the path
-    for a given key word, cliche and rating. More precisely, select paths with key word.
+    for a given main article, cliche and rating. More precisely, select paths with main_article.
     Keep paths with given rating. Compare difference of length (shortest path vs actual path)
     for path with cliche and without cliche.
     input:
         df: whole data
         rating: rating to select from
         cliche: cliche of key_word
-        key_word:
+        main_article:
         verbose: display results
         return_df: return created dataframe or not
     """
