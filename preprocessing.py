@@ -135,6 +135,9 @@ def import_and_clean_data():
         lambda path: unquote(";".join(path)).split(";")
     )
 
+    # some paths_finished have path_length/duration = 0. Remove them
+    paths_finished = paths_finished[paths_finished["path_length"] > 0]
+
     return (
         articles,
         categories,
