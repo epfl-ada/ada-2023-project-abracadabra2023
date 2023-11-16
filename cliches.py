@@ -3,51 +3,51 @@ import pandas as pd
 from scipy import stats
 
 __all__ = [
-    "get_df_keyword",
-    "get_category_keyword",
-    "get_index_keyword_in",
+    "get_df_main_article",
+    "get_category_main_article",
+    "get_index_main_article_in",
 ]
 
 
-def get_df_keyword(paths_finished: pd.DataFrame, key_word="United_Kingdom"):
+def get_df_main_article(paths_finished: pd.DataFrame, main_article="United_Kingdom"):
     """
     given paths_finished, get all rows that have 'keyword' in their path.
     """
     # get all paths with key_word in it (not matter its place in the path)
-    df_with_key_word = paths_finished.iloc[
+    df_with_main_article = paths_finished.iloc[
         np.where(
             np.char.rfind(
                 np.array(
                     paths_finished["path"].apply(lambda path: ";".join(path)),
                     dtype="str",
                 ),
-                key_word,
+                main_article,
             )
             >= 0
         )[0]
     ]
-    return df_with_key_word
+    return df_with_main_article
 
 
-def get_category_keyword(key_word, path, categories):
+def get_category_main_article(main_article, path, categories):
     """
     return category of element (in path) with keyword in it
     """
-    article = path[np.where(np.char.rfind(path, key_word) >= 0)[0][0]]
+    article = path[np.where(np.char.rfind(path, main_article) >= 0)[0][0]]
     cat = np.array(categories[categories["article"] == article]["category1"])
     return cat
 
 
-def get_index_keyword_in(key_word, path):
+def get_index_main_article_in(main_article, path):
     """
-    get index of key_word in path
+    get index of main_article in path
     input:
-        key_word: str
+        main_article: str
         path: list of str
     """
 
-    # find index that contains key_word
-    index = np.where(np.char.rfind(path, key_word) >= 0)[0][0]
+    # find index that contains main_article
+    index = np.where(np.char.rfind(path, main_article) >= 0)[0][0]
 
     if index == 0:
         # return just after
@@ -68,7 +68,7 @@ def test_difference_path_length_cliche(
     df: pd.DataFrame,
     rating: int,
     cliche: str = "London",
-    key_word: str = "United_Kingdom",
+    main_article: str = "United_Kingdom",
     verbose: bool = True,
     return_df: bool = False,
 ):
@@ -85,7 +85,7 @@ def test_difference_path_length_cliche(
         verbose: display results
         return_df: return created dataframe or not
     """
-    rating_uk = get_df_keyword(df[df["rating"] == rating], key_word=key_word)
+    rating_main_article = get_df_main_article(df[df["rating"] == rating], main_article=main_article)
 
     def print_results(data):
         print(f"Size data: {data.shape}")
@@ -96,33 +96,33 @@ def test_difference_path_length_cliche(
 
     # get all paths with cliche London
     index_with_cliche = []
-    for idx in rating_uk.index:
+    for idx in rating_main_article.index:
         index_key_word = np.where(
-            np.char.rfind(rating_uk["path"].loc[idx], cliche) > 0
+            np.char.rfind(rating_main_article["path"].loc[idx], cliche) > 0
         )[0]
         if len(index_key_word) > 0:
             index_with_cliche.append(idx)
-    rating_uk_cliche = rating_uk.loc[np.array(index_with_cliche).flatten()]
+    rating_main_article_cliche = rating_main_article.loc[np.array(index_with_cliche).flatten()]
 
     # get all paths without cliche
     index_wo_cliche = []
-    for idx in rating_uk.index:
+    for idx in rating_main_article.index:
         index_key_word = np.where(
-            np.char.rfind(rating_uk["path"].loc[idx], cliche) > 0
+            np.char.rfind(rating_main_article["path"].loc[idx], cliche) > 0
         )[0]
         if len(index_key_word) == 0:
             index_wo_cliche.append(idx)
-    rating_uk_nocliche = rating_uk.loc[np.array(index_wo_cliche).flatten()]
+    rating_main_article_nocliche = rating_main_article.loc[np.array(index_wo_cliche).flatten()]
 
     # print results
     if verbose:
-        print_results(rating_uk_cliche)
-        print_results(rating_uk_nocliche)
+        print_results(rating_main_article_cliche)
+        print_results(rating_main_article_nocliche)
 
     # ttest
     stat, p = stats.ttest_ind(
-        rating_uk_cliche["diff_length"],
-        rating_uk_nocliche["diff_length"],
+        rating_main_article_cliche["diff_length"],
+        rating_main_article_nocliche["diff_length"],
         equal_var=False,
         alternative="less",
     )
@@ -134,13 +134,13 @@ def test_difference_path_length_cliche(
         )
 
     if return_df:
-        return (stat, p, rating_uk_cliche, rating_uk_nocliche)
+        return (stat, p, rating_main_article_cliche, rating_main_article_nocliche)
     else:
         return (
             stat,
             p,
-            rating_uk_cliche["diff_length"].mean(),
-            rating_uk_nocliche["diff_length"].mean(),
-            rating_uk_cliche.shape,
-            rating_uk_nocliche.shape,
+            rating_main_article_cliche["diff_length"].mean(),
+            rating_main_article_nocliche["diff_length"].mean(),
+            rating_main_article_cliche.shape,
+            rating_main_article_nocliche.shape,
         )
