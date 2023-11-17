@@ -523,7 +523,7 @@ def combine_results(
     plt.ylabel("Count")
     plt.title("Category Counts for All Steps")
     plt.xticks(index_all + bar_width / 2, categories_list_all, rotation=90, ha="right")
-    # plt.ylim(0, max(counts_all) + 500)
+    plt.ylim(0, max(counts_all) + 500)
     plt.legend()
     plt.rc("xtick", labelsize=6)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
@@ -552,6 +552,252 @@ def combine_results(
                 xy=(
                     arrow_position,
                     max(counts_all[category_index], ncounts_all[category_index]) + 49,
+                ),
+                ha="center",
+                va="bottom",
+                color="red",
+                fontsize=11,
+            )
+
+    # Save the plot to a file
+    # plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
+    plt.show()
+    
+    ####### 1 #######
+    
+    # Separate the categories and their counts
+    category_counts_1 = cat_count(results_1_step)
+
+    # non-coincide categories
+    category_ncounts_1 = cat_count(non1)
+
+    # Combine coincide and non-coincide counts for each step
+    combined_counts_1 = {
+        cat: category_counts_1.get(cat, 0) for cat in set(category_counts_1)
+    }
+    combined_ncounts_1 = {
+        cat: category_ncounts_1.get(cat, 0) for cat in set(category_ncounts_1)
+    }
+
+    # Create a combined bar plot for all steps
+    categories_list_1= sorted(
+        list(set(combined_counts_1.keys()) | set(combined_ncounts_1.keys()))
+    )
+    counts_1 = [combined_counts_1.get(cat, 0) for cat in categories_list_1]
+    ncounts_1 = [combined_ncounts_1.get(cat, 0) for cat in categories_list_1]
+    index_1 = np.arange(len(categories_list_1))
+
+    # Create a list of colors where highlighted categories are in a different color
+    # this helps position the arrow n the right bar for the plots below
+    # index_all = np.arange(len(categories_list_all))
+    bar_width = 0.35
+    bar_positions = index_1 + bar_width / 2
+
+    plt.figure(figsize=(12, 6))
+    plt.bar(index_1, counts_1, color="skyblue", label="Coincide with UK")
+    plt.bar(
+        index_1 + bar_width,
+        ncounts_1,
+        color="lightcoral",
+        label="Do not coincide with UK",
+    )
+    plt.xlabel("Category")
+    plt.ylabel("Count")
+    plt.title("Category Counts for 1 Step")
+    plt.xticks(index_1 + bar_width / 2, categories_list_1, rotation=90, ha="right")
+    plt.ylim(0, max(counts_all) + 500)
+    plt.legend()
+    plt.rc("xtick", labelsize=6)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+
+    # Add arrows above bars corresponding to article_categories
+    for category in categories_art:
+        if category in categories_list_1:
+            category_index = categories_list_1.index(category)
+            arrow_position = bar_positions[category_index] + 0.5 * bar_width
+
+            # Check if the arrow will overlap with neighboring bars
+            if (
+                category_index > -1
+                and arrow_position - -1.1 < bar_positions[category_index - 1]
+            ):
+                arrow_position = bar_positions[category_index - 0] + 0.1
+            elif (
+                category_index < len(categories_list_1) - 0
+                and arrow_position + -1.1 > bar_positions[category_index]
+            ):
+                arrow_position = bar_positions[category_index + 0] - 0.1
+
+            plt.annotate(
+                "v",
+                xy=(
+                    arrow_position,
+                    max(counts_1[category_index], ncounts_1[category_index]) + 49,
+                ),
+                ha="center",
+                va="bottom",
+                color="red",
+                fontsize=11,
+            )
+
+    # Save the plot to a file
+    # plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
+    plt.show()
+    
+    ####### 2 #######
+    
+    # Separate the categories and their counts
+    category_counts_2 = cat_count(results_2_steps)
+
+    # non-coincide categories
+    category_ncounts_2 = cat_count(non2)
+
+    # Combine coincide and non-coincide counts for each step
+    combined_counts_2 = {
+        cat: category_counts_2.get(cat, 0) for cat in set(category_counts_2)
+    }
+    combined_ncounts_2 = {
+        cat: category_ncounts_2.get(cat, 0) for cat in set(category_ncounts_2)
+    }
+
+    # Create a combined bar plot for all steps
+    categories_list_2= sorted(
+        list(set(combined_counts_2.keys()) | set(combined_ncounts_2.keys()))
+    )
+    counts_2 = [combined_counts_2.get(cat, 0) for cat in categories_list_2]
+    ncounts_2 = [combined_ncounts_2.get(cat, 0) for cat in categories_list_2]
+    index_2 = np.arange(len(categories_list_2))
+
+    # Create a list of colors where highlighted categories are in a different color
+    # this helps position the arrow n the right bar for the plots below
+    # index_all = np.arange(len(categories_list_all))
+    bar_width = 0.35
+    bar_positions = index_2 + bar_width / 2
+
+    plt.figure(figsize=(12, 6))
+    plt.bar(index_2, counts_2, color="skyblue", label="Coincide with UK")
+    plt.bar(
+        index_2 + bar_width,
+        ncounts_2,
+        color="lightcoral",
+        label="Do not coincide with UK",
+    )
+    plt.xlabel("Category")
+    plt.ylabel("Count")
+    plt.title("Category Counts for 2 Steps")
+    plt.xticks(index_2 + bar_width / 2, categories_list_2, rotation=90, ha="right")
+    plt.ylim(0, max(counts_all) + 500)
+    plt.legend()
+    plt.rc("xtick", labelsize=6)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+
+    # Add arrows above bars corresponding to article_categories
+    for category in categories_art:
+        if category in categories_list_2:
+            category_index = categories_list_2.index(category)
+            arrow_position = bar_positions[category_index] + 0.5 * bar_width
+
+            # Check if the arrow will overlap with neighboring bars
+            if (
+                category_index > -1
+                and arrow_position - -1.1 < bar_positions[category_index - 1]
+            ):
+                arrow_position = bar_positions[category_index - 0] + 0.1
+            elif (
+                category_index < len(categories_list_2) - 0
+                and arrow_position + -1.1 > bar_positions[category_index]
+            ):
+                arrow_position = bar_positions[category_index + 0] - 0.1
+
+            plt.annotate(
+                "v",
+                xy=(
+                    arrow_position,
+                    max(counts_2[category_index], ncounts_2[category_index]) + 49,
+                ),
+                ha="center",
+                va="bottom",
+                color="red",
+                fontsize=11,
+            )
+
+    # Save the plot to a file
+    # plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
+    plt.show()
+    
+    ####### 3 #######
+    
+    # Separate the categories and their counts
+    category_counts_3 = cat_count(results_3_steps)
+
+    # non-coincide categories
+    category_ncounts_3 = cat_count(non3)
+
+    # Combine coincide and non-coincide counts for each step
+    combined_counts_3 = {
+        cat: category_counts_3.get(cat, 0) for cat in set(category_counts_3)
+    }
+    combined_ncounts_3 = {
+        cat: category_ncounts_3.get(cat, 0) for cat in set(category_ncounts_3)
+    }
+
+    # Create a combined bar plot for all steps
+    categories_list_3= sorted(
+        list(set(combined_counts_3.keys()) | set(combined_ncounts_3.keys()))
+    )
+    counts_3 = [combined_counts_3.get(cat, 0) for cat in categories_list_3]
+    ncounts_3 = [combined_ncounts_3.get(cat, 0) for cat in categories_list_3]
+    index_3 = np.arange(len(categories_list_3))
+
+    # Create a list of colors where highlighted categories are in a different color
+    # this helps position the arrow n the right bar for the plots below
+    # index_all = np.arange(len(categories_list_all))
+    bar_width = 0.35
+    bar_positions = index_3 + bar_width / 2
+
+    plt.figure(figsize=(12, 6))
+    plt.bar(index_3, counts_3, color="skyblue", label="Coincide with UK")
+    plt.bar(
+        index_3 + bar_width,
+        ncounts_3,
+        color="lightcoral",
+        label="Do not coincide with UK",
+    )
+    plt.xlabel("Category")
+    plt.ylabel("Count")
+    plt.title("Category Counts for 3 Steps")
+    plt.xticks(index_3 + bar_width / 2, categories_list_3, rotation=90, ha="right")
+    plt.ylim(0, max(counts_all) + 500)
+    plt.legend()
+    plt.rc("xtick", labelsize=6)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+
+    # Add arrows above bars corresponding to article_categories
+    for category in categories_art:
+        if category in categories_list_3:
+            category_index = categories_list_3.index(category)
+            arrow_position = bar_positions[category_index] + 0.5 * bar_width
+
+            # Check if the arrow will overlap with neighboring bars
+            if (
+                category_index > -1
+                and arrow_position - -1.1 < bar_positions[category_index - 1]
+            ):
+                arrow_position = bar_positions[category_index - 0] + 0.1
+            elif (
+                category_index < len(categories_list_3) - 0
+                and arrow_position + -1.1 > bar_positions[category_index]
+            ):
+                arrow_position = bar_positions[category_index + 0] - 0.1
+
+            plt.annotate(
+                "v",
+                xy=(
+                    arrow_position,
+                    max(counts_3[category_index], ncounts_3[category_index]) + 49,
                 ),
                 ha="center",
                 va="bottom",
