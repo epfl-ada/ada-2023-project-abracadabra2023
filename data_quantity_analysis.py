@@ -520,7 +520,7 @@ def combine_results(
     )
     plt.xlabel("Category")
     plt.ylabel("Count")
-    plt.title("Category Counts for All Steps")
+    plt.title("Category Counts")
     plt.xticks(index_all + bar_width / 2, categories_list_all, rotation=90, ha="right")
     plt.ylim(0, max(counts_all) + 500)
     plt.legend()
