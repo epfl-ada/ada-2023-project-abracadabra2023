@@ -18,12 +18,12 @@ The core concept of our project involves identifying sets of potential clichés 
 
 ## Methods:
 Before starting our initial analysis, we hate to clean pre-process our dataset, in order to obtain significant and meaningful results. To do so, we create a framework that permit us to analyze the different paths and articles. We can carry out an analysis at different levels based on a main *unit*, that can be a page, category, subcategory, sub-subcategory, etc. Our analysis will can consist in:
-- Choosing a main unit, which will just be an article in this milestone. The goal would be to compare the analysis for different main units to compare the results, but for now we would only look at one to verify that it is feasible. Here we chose to study the main unit ‘United_Kingdom’.
-- Define a set of units consisting of clichés associated with the main unit. This can be achieved manually, with a 100% manual selection from all the in and out neighbors of the primary unit. Alternatively, empirical subsets of pages can be employed to identify these clichés (e.g., selecting the most common ones in the paths taken). However, solely relying on clichés from the provided dataset may introduce bias, as it would only capture player-specific clichés rather than more general ones. Therefore, an alternative approach involves examining clichés beyond the dataset and associating them with an article or a category to broaden the scope of our analysis. Another option is to randomly generate clichés for a particular unit, for instance by using ChatGPT.
+- Choosing a main unit, which will just be an article in this milestone. The goal would be to compare the analysis for different main units to compare the results, but for now we only look at one to verify that it is feasible. We chose to study the main unit ‘United_Kingdom’.
+- Define a set of units consisting of clichés associated with the main unit. This can be achieved manually, with a 100% manual selection from all the in and out neighbors of the primary unit. Alternatively, empirical subsets of units can be employed to identify these clichés (e.g., selecting the most common ones in the paths taken). However, solely relying on clichés from the provided dataset may introduce bias, as it would only capture player-specific clichés rather than more general ones. Therefore, an alternative approach involves examining clichés beyond the dataset and associating them with an article or a category to broaden the scope of our analysis. Another option is to randomly generate clichés for a particular unit, for instance by using ChatGPT.
 - Defining performance metrics based on actual success of the path, difficulty rating, length of the taken path, length of the actual shortest path, number of backtracks, etc.
 - Comparing the performance of games passing by the main unit and analyzing the correlation with the usage of the cliché’s units. By defining thresholds, we could compute binary classification metrics like precision, recall, etc.
 - (inverse problem) Find other sets of units that increase or decrease the precision / recall metrics and see whether these units are intuitively clichés or not.
-
+- A final step adressing the last one of our research questions would be to check if among the units (in particular pages) that we considered as clichés, there is an increased proportion of backtracks performed by the players (outlier detection based for example on one-class SVM). This would indicate that the players chose this page because they thought it will contain a certain hyperlink but it did not. We could then inspect the actual page content to look for words corresponding to clichés that should have been hyperlinked. Other analysis based on the future lectures could be performed to detect if the page is badly written (e.g. if it contains too many clichés, or if it is too long, etc.).
 
 ## Proposed timeline:
 - 17.11.2023: Project milestone 2 deadline
@@ -37,11 +37,12 @@ Before starting our initial analysis, we hate to clean pre-process our dataset, 
 
 
 ## Organization within the team:
-- Tudor:
-- Anna:
-- Martin:
-- Philippe:
-- Salya:
+- Tudor: website, ML, code quality
+- Anna: sublime plots, data story
+- Martin: statistical analysis and ML, code quality
+- Philippe: website, ML
+- Salya: data cleaning and pre-processing, data story
+<!-- clean plots, data story, website, statistical analysis and ML, data cleaning and pre-processing, code quality -->
 
 
 ## Questions for TAs:
