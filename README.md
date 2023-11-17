@@ -4,6 +4,7 @@ _abracADAbra2023: Tudor Oancea, Anna Schmitt, Martin Leclercq, Philippe Servant,
 
 ## Abstract:
 Clichés, in this context, refer to common ideas and concepts that quickly come to mind when thinking about a particular subject. In Wikispeedia, these clichés may manifest either as individual pages or as page categories typically associated with a shared concept and that players know should contain relevant hyperlinks for their target.
+
 The core concept of our project involves identifying sets of potential clichés related to various topics, such as countries, and assessing their frequency of occurrence in actual games. We aim to determine how frequently players rely on these clichés and whether they contribute to players successfully reaching their targets.
 
 
@@ -14,7 +15,7 @@ The core concept of our project involves identifying sets of potential clichés 
 
 
 ## Methods:
-Before starting our initial analysis, we hate to clean pre-process our dataset, in order to obtain significant and meaningful results. To do so, we create a framework that permit us to analyze the different paths and articles. We can carry out an analysis at different levels based on a main *unit*, that can be a page, category, subcategory, sub-subcategory, etc. Our analysis will can consist in:
+Before starting our initial analysis, we have to clean and pre-process our dataset, in order to obtain significant and meaningful results. To do so, we create a framework that permit us to analyze the different paths and articles. We can carry out an analysis at different levels based on a main *unit*, that can be a page, category, subcategory, sub-subcategory, etc. Our analysis will can consist in:
 - Choosing a main unit, which will just be an article in this milestone. The goal would be to compare the analysis for different main units to compare the results, but for now we only look at one to verify that it is feasible. We chose to study the main unit ‘United_Kingdom’.
 - Define a set of units consisting of clichés associated with the main unit. This can be achieved manually, with a 100% manual selection from all the in and out neighbors of the primary unit. Alternatively, empirical subsets of units can be employed to identify these clichés (e.g., selecting the most common ones in the paths taken). However, solely relying on clichés from the provided dataset may introduce bias, as it would only capture player-specific clichés rather than more general ones. Therefore, an alternative approach involves examining clichés beyond the dataset and associating them with an article or a category to broaden the scope of our analysis. Another option is to randomly generate clichés for a particular unit, for instance by using ChatGPT.
 - Defining performance metrics based on actual success of the path, difficulty rating, length of the taken path, length of the actual shortest path, number of backtracks, etc.
