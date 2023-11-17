@@ -561,6 +561,8 @@ def combine_results(
     # Save the plot to a file
     # plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
     plt.show()
+
+    return
     
     ####### 1 #######
     
