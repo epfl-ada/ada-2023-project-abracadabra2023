@@ -13,9 +13,6 @@ The core concept of our project involves identifying sets of potential clichés 
 - Can clichés help us determine if some articles are badly written, that is if they need more hyperlink?
 
 
-## Additional datasets
-
-
 ## Methods:
 Before starting our initial analysis, we hate to clean pre-process our dataset, in order to obtain significant and meaningful results. To do so, we create a framework that permit us to analyze the different paths and articles. We can carry out an analysis at different levels based on a main *unit*, that can be a page, category, subcategory, sub-subcategory, etc. Our analysis will can consist in:
 - Choosing a main unit, which will just be an article in this milestone. The goal would be to compare the analysis for different main units to compare the results, but for now we only look at one to verify that it is feasible. We chose to study the main unit ‘United_Kingdom’.
@@ -24,6 +21,13 @@ Before starting our initial analysis, we hate to clean pre-process our dataset, 
 - Comparing the performance of games passing by the main unit and analyzing the correlation with the usage of the cliché’s units. By defining thresholds, we could compute binary classification metrics like precision, recall, etc.
 - (inverse problem) Find other sets of units that increase or decrease the precision / recall metrics and see whether these units are intuitively clichés or not.
 - A final step adressing the last one of our research questions would be to check if among the units (in particular pages) that we considered as clichés, there is an increased proportion of backtracks performed by the players (outlier detection based for example on one-class SVM). This would indicate that the players chose this page because they thought it will contain a certain hyperlink but it did not. We could then inspect the actual page content to look for words corresponding to clichés that should have been hyperlinked. Other analysis based on the future lectures could be performed to detect if the page is badly written (e.g. if it contains too many clichés, or if it is too long, etc.).
+
+## Additional datasets:
+As stated above, we need to select some clichés independently from the dataset to compare them from the ones we will find using the Wikispeedia dataset. To do so, we will considere the following strategies:
+- We can use the ChatGPT model to generate clichés using different prompts. We can then select the most relevant ones.
+- Browse the internet to find articles about clichés on our topic, for instance, there is exists a Wikipedia page about [Stereotypes of british people](https://en.wikipedia.org/wiki/Stereotypes_of_British_people). And then select the most relevant ones.
+- Finally, we find an external dataset called [SeeGULL](https://github.com/google-research-datasets/seegull) which measures the offensiveness of clichés on geographical identity groups. The stereotypes contained in the dataset were generated using PaLM and GPT-3. The interesting part for us is that it contains an identity group named 'British' with some possible stereotypes associated to it, and each of these stereotypes are humanly evaluated as stereotypical, non-stereotypical or unsure. Finally the annotators are divided between European and North-American people, this provides two point of view, one from the inside and one from the outside. Hence, We can use this dataset to select the most relevant clichés, while keeping in mind that it refers on British people and not on the United Kingdom.
+
 
 ## Proposed timeline:
 - 17.11.2023: Project milestone 2 deadline
