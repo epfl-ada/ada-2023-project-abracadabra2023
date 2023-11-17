@@ -57,12 +57,11 @@ def path_duration_distribution(paths_finished: pd.DataFrame, show: bool = False)
     plt.figure(figsize=(8, 6))
     sns.histplot(
         paths_finished["durationInSec"],
-        bins=100,
+        bins=50,
         edgecolor="k",
         alpha=0.7,
         log_scale=True,
     )
-    plt.yscale("log")
     plt.xlabel("Duration (seconds)")
     plt.ylabel("Count")
     plt.title("Path Duration Distribution for Finished Paths")
@@ -101,7 +100,7 @@ def path_length_distribution(paths_finished: pd.DataFrame, show: bool = False):
     plt.figure(figsize=(8, 6))
     sns.histplot(
         paths_finished["path_length"],
-        bins=50,
+        bins=20,
         edgecolor="k",
         alpha=0.7,
         log_scale=True,
