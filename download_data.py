@@ -46,18 +46,28 @@ if __name__ == "__main__":
     # Destination folder for extraction
     destination_folder = "data"
     # Download and extract the archive
-    download_and_extract(
-        "https://snap.stanford.edu/data/wikispeedia/wikispeedia_paths-and-graph.tar.gz",
-        destination_folder,
-        subfolder="graph",
-    )
-    download_and_extract(
-        "https://snap.stanford.edu/data/wikispeedia/wikispeedia_articles_plaintext.tar.gz",
-        destination_folder,
-        subfolder="articles_plain_text",
-    )
+    # download_and_extract(
+    #     "https://snap.stanford.edu/data/wikispeedia/wikispeedia_paths-and-graph.tar.gz",
+    #     destination_folder,
+    #     subfolder="graph",
+    # )
+    # download_and_extract(
+    #     "https://snap.stanford.edu/data/wikispeedia/wikispeedia_articles_plaintext.tar.gz",
+    #     destination_folder,
+    #     subfolder="articles_plain_text",
+    # )
     # download_and_extract(
     #     "https://snap.stanford.edu/data/wikispeedia/wikispeedia_articles_html.tar.gz",
     #     destination_folder,
     #     subfolder="articles_html",
     # )
+
+    # also download the following file and place it in data:
+    # https://raw.github.com/google-research-datasets/seegull/blob/main/dataset/stereotypes_global_v2.csv
+    response = requests.get(
+        "https://raw.github.com/google-research-datasets/seegull/main/dataset/stereotypes_global_v2.csv",
+        stream=True,
+    )
+    with open(destination_folder + "/seegull.csv", "wb") as file:
+        for chunk in response.iter_content(chunk_size=128):
+            file.write(chunk)
