@@ -1,6 +1,14 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+import spacy
+from empath import Empath
+import gensim
+from gensim import corpora
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+import nltk
 
 __all__ = [
     "get_df_main_article",
@@ -86,7 +94,9 @@ def test_difference_path_length_cliche(
         verbose: display results
         return_df: return created dataframe or not
     """
-    rating_main_article = get_df_main_article(df[df["rating"] == rating], main_article=main_article)
+    rating_main_article = get_df_main_article(
+        df[df["rating"] == rating], main_article=main_article
+    )
 
     def print_results(data):
         print(f"Size data: {data.shape}")
@@ -103,7 +113,9 @@ def test_difference_path_length_cliche(
         )[0]
         if len(index_key_word) > 0:
             index_with_cliche.append(idx)
-    rating_main_article_cliche = rating_main_article.loc[np.array(index_with_cliche).flatten()]
+    rating_main_article_cliche = rating_main_article.loc[
+        np.array(index_with_cliche).flatten()
+    ]
 
     # get all paths without cliche
     index_wo_cliche = []
@@ -113,7 +125,9 @@ def test_difference_path_length_cliche(
         )[0]
         if len(index_key_word) == 0:
             index_wo_cliche.append(idx)
-    rating_main_article_nocliche = rating_main_article.loc[np.array(index_wo_cliche).flatten()]
+    rating_main_article_nocliche = rating_main_article.loc[
+        np.array(index_wo_cliche).flatten()
+    ]
 
     # print results
     if verbose:
@@ -145,3 +159,85 @@ def test_difference_path_length_cliche(
             rating_main_article_cliche.shape,
             rating_main_article_nocliche.shape,
         )
+
+
+def top_k_categories(attributes, k=10, verbose=False):
+    """
+    get the k top topics of attributes
+    input:
+        attributes: string with text or words
+    """
+    lexicon = Empath()
+
+    # topic detection
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(attributes)
+    empath_features = lexicon.analyze(doc.text, normalize=True)
+
+    # sort dict by strength of association
+    sorted_categories = sorted(
+        empath_features.items(), key=lambda x: x[1], reverse=True
+    )
+
+    if verbose:
+        # get max length of topic for nice alignment printing
+        max_length = max(len(category) for category, _ in sorted_categories[:10])
+
+        for category, value in sorted_categories[:k]:
+            print(f"{category.ljust(max_length)} {value:.3%}")
+
+    return sorted_categories
+
+
+def get_topics(article_name, k=5, l=10, data_path="data/articles_plain_text/"):
+    """
+    get topics of a given article.
+
+    input:
+        article_name: str
+        k: int number of words to keep for each found topic
+        l: int number of topics to keep for each found topic (empath)
+        data_path: str
+    """
+    # get text
+    with open(data_path + article_name, "r", encoding="utf-8") as file:
+        text = file.read()
+
+    # tokenize text (separates at each space bar)
+    tokens = word_tokenize(text)
+
+    # remove stop words; keep only alphatic words, eg not #, % etc.
+    stop_words = set(stopwords.words("english"))
+    tokens = [
+        word.lower()
+        for word in tokens
+        if word.isalpha() and word.lower() not in stop_words
+    ]
+
+    # lemmatization (returns "base" form, eg drunk -> drink)
+    lemmatizer = WordNetLemmatizer()
+    tokens = [lemmatizer.lemmatize(word) for word in tokens]
+
+    # create a dictionary and corpus
+    dictionary = corpora.Dictionary([tokens])
+    corpus = [dictionary.doc2bow(tokens)]
+
+    # build the LDA model
+    lda_model = gensim.models.LdaModel(corpus, num_topics=3, id2word=dictionary)
+
+    # get topics (no name)
+    topics = lda_model.print_topics(num_words=k)
+
+    def get_words_topic(topic):
+        """
+        obtain only the word associated to the topic
+        """
+        return np.array(
+            [
+                topic.split("+")[i].split("*")[1].replace('"', "").strip()
+                for i in range(len(topic.split("+")))
+            ]
+        )
+
+    # only first topic (for now)
+    return top_k_categories(" ".join(get_words_topic(topics[0][1])), l)
