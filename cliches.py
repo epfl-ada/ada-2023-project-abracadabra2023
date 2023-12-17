@@ -181,12 +181,12 @@ def top_k_categories(attributes, k=10, verbose=False):
 
     if verbose:
         # get max length of topic for nice alignment printing
-        max_length = max(len(category) for category, _ in sorted_categories[:10])
+        max_length = max(len(category) for category, _ in sorted_categories[:k])
 
         for category, value in sorted_categories[:k]:
             print(f"{category.ljust(max_length)} {value:.3%}")
 
-    return sorted_categories
+    return sorted_categories[:k]
 
 
 def get_topics(article_name, k=5, l=10, data_path="data/articles_plain_text/"):
