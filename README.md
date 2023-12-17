@@ -11,7 +11,8 @@ The core concept of our project involves identifying sets of potential clichés 
 ## Research questions:
 - How can we select the clichés of a given topic without being too much biased?
 - Do clichés influence our searching process when we know our goal?
-- Can clichés help us determine if some articles are badly written, that is if they need more hyperlink?
+<!-- TODO: reformulate this 3rd question -->
+- Can clichés help us determine if some articles are badly written, that is if they need more hyperlinks? 
 
 
 ## Methods:
