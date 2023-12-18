@@ -139,7 +139,6 @@ def most_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
     plt.xlabel("Visited Article")
     plt.ylabel("Count")
     plt.title("Most Commonly Visited Articles")
-
     plt.xticks(rotation=45)  # Rotate x-axis labels for readability
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
@@ -199,7 +198,6 @@ def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFra
     plt.rc("xtick", labelsize=7)
     plt.rc("ytick", labelsize=7)
     plt.xticks(rotation=90)  # Rotate x-axis labels for readability
-    plt.legend()
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
     if show:
