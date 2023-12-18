@@ -180,7 +180,6 @@ def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFra
         cat_art = [cat for cat in cat_art if pd.notna(cat)]
         cat_art = list(set(cat_art))
         categories_top_50_articles.append(cat_art)
-    print(categories_top_50_articles)
     
     idx_countries = ['Countries' in categories_top_50_articles[i] for i in range(len(categories_top_50_articles))]
     
@@ -229,7 +228,6 @@ def top_50_target_articles(paths_finished: pd.DataFrame, categories: pd.DataFram
         cat_art = [cat for cat in cat_art if pd.notna(cat)]
         cat_art = list(set(cat_art))
         categories_top_50_targets.append(cat_art)
-    print(categories_top_50_targets)
     
     idx_countries = ['Countries' in categories_top_50_targets[i] for i in range(len(categories_top_50_targets))]
     colors = ["red" if is_country else "skyblue" for is_country in idx_countries]
