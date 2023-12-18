@@ -13,8 +13,8 @@ __all__ = [
     "path_length_vs_duration",
     "path_length_distribution",
     "most_visited_articles",
-    "top_100_visited_articles",
-    "top_100_target_articles",
+    "top_50_visited_articles",
+    "top_50_target_articles",
     "distribution_position_percentage",
     "count_in_out_neighbors",
     "get_categories_main_article",
@@ -150,8 +150,8 @@ def most_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
 #################################################################################################
 
 
-# Top 100 most visited articles
-def top_100_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
+# Top 50 most visited articles
+def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False):
     # Flatten the list of lists into a single list of visited articles
     flat_visited_articles = [
         article for path in paths_finished["path"] for article in path
@@ -161,27 +161,46 @@ def top_100_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
     article_counts = Counter(flat_visited_articles)
 
     # Get the 100 most common articles
-    top_100_articles = article_counts.most_common(100)
+    top_50_articles = article_counts.most_common(50)
 
-    print(top_100_articles)
+    print(top_50_articles)
     # Remove the tuple with the first element equal to '<'
     filtered_articles = [
-        (name, count) for (name, count) in top_100_articles if name != "<"
+        (name, count) for (name, count) in top_50_articles if name != "<"
     ]
     
     # Extract article names and counts
     article_names, article_counts = zip(*filtered_articles)
+    
+    categories_top_50_articles = list()
+    
+    for article in article_names:
+        cat_art = categories.loc[categories["article"]==article, ["category1", "category2", "category3"]]
+        cat_art = cat_art.values.flatten()
+        cat_art = [cat for cat in cat_art if pd.notna(cat)]
+        cat_art = list(set(cat_art))
+        categories_top_50_articles.append(cat_art)
+    print(categories_top_50_articles)
+    
+    idx_countries = ['Countries' in categories_top_50_articles[i] for i in range(len(categories_top_50_articles))]
+    
+    article_names = np.array(article_names)
+    article_counts = np.array(article_counts)
+    
+    colors = ["red" if is_country else "skyblue" for is_country in idx_countries]
 
-    # Create a bar chart with the 100 most visited articles
+    # Create a bar chart with the 50 most visited articles
+    # Create a bar chart for articles about countries
     plt.figure(figsize=(13, 6))
-    sns.barplot(x=article_names, y=article_counts, palette="coolwarm")
+    plt.bar(article_names, article_counts, color=colors)
     plt.yscale("log")
     plt.xlabel("Visited Article")
-    plt.ylabel("Count")
-    plt.title("Top 100 Most Visited Articles")
+    plt.ylabel("Count (log-scale)")
+    plt.title("Top 50 Most Visited Articles")
     plt.rc("xtick", labelsize=7)
     plt.rc("ytick", labelsize=7)
     plt.xticks(rotation=90)  # Rotate x-axis labels for readability
+    plt.legend()
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
     if show:
@@ -191,24 +210,37 @@ def top_100_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
 #################################################################################################
 
 
-# Top 100 most common target in finished articles
-def top_100_target_articles(paths_finished: pd.DataFrame, show: bool = False):
+# Top 50 most common target in finished articles
+def top_50_target_articles(paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False):
     # Extract the last article as the target
     paths_finished["target_article"] = paths_finished["path"].str[-1]
 
     # Count the occurrences of each target article
     target_counts = paths_finished["target_article"].value_counts()
 
-    # Get the top 100 most common target articles
-    top_100_targets = target_counts.head(100)
+    # Get the top 50 most common target articles
+    top_50_targets = target_counts.head(50)
+    
+    categories_top_50_targets = list()
+    
+    for article in top_50_targets.index:
+        cat_art = categories.loc[categories["article"]==article, ["category1", "category2", "category3"]]
+        cat_art = cat_art.values.flatten()
+        cat_art = [cat for cat in cat_art if pd.notna(cat)]
+        cat_art = list(set(cat_art))
+        categories_top_50_targets.append(cat_art)
+    print(categories_top_50_targets)
+    
+    idx_countries = ['Countries' in categories_top_50_targets[i] for i in range(len(categories_top_50_targets))]
+    colors = ["red" if is_country else "skyblue" for is_country in idx_countries]
 
     # Create a bar chart for the top 100 target articles
     plt.figure(figsize=(12, 6))
-    sns.barplot(x=top_100_targets.index, y=top_100_targets.values, palette="coolwarm")
+    plt.bar(top_50_targets.index, top_50_targets.values, color=colors)
     plt.yscale("log")
     plt.xlabel("Target Article")
-    plt.ylabel("Count")
-    plt.title("Top 100 Most Common Target Articles in Finished Paths")
+    plt.ylabel("Count (log-scale)")
+    plt.title("Top 50 Most Common Target Articles in Finished Paths")
     plt.rc("xtick", labelsize=7)
     plt.rc("ytick", labelsize=7)
     plt.xticks(rotation=90)  # Rotate x-axis labels for readability
@@ -812,3 +844,4 @@ def combine_results(
 
 
 #################################################################################################
+
