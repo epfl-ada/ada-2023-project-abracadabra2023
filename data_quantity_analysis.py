@@ -7,6 +7,11 @@ from scipy.stats import linregress
 from collections import Counter
 from typing import Union
 
+import plotly.tools as tls
+import plotly.graph_objects as go
+import plotly.express as px
+
+
 __all__ = [
     "rating_vs_path_length",
     "path_duration_distribution",
@@ -150,7 +155,7 @@ def most_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
 
 
 # Top 50 most visited articles
-def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False):
+def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False, html_file: bool = False, html_file_name: str = "top_50_visited_articles.html"):
     # Flatten the list of lists into a single list of visited articles
     flat_visited_articles = [
         article for path in paths_finished["path"] for article in path
@@ -189,7 +194,7 @@ def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFra
 
     # Create a bar chart with the 50 most visited articles
     # Create a bar chart for articles about countries
-    plt.figure(figsize=(13, 6))
+    fig = plt.figure(figsize=(13, 6))
     plt.bar(article_names, article_counts, color=colors)
     plt.yscale("log")
     plt.xlabel("Visited Article")
@@ -202,6 +207,28 @@ def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFra
 
     if show:
         plt.show()
+
+    if html_file:
+        # py_fig = tls.mpl_to_plotly(fig)
+        # # adapt the margin 
+        # py_fig.update_layout(margin=dict(l=20, r=20, t=20, b=20))
+        # py_fig.write_html("html_plots/" + html_file_name)
+        # do the same plot with plotly
+        fig = go.Figure(data=[go.Bar(x=article_names, y=article_counts, marker_color=colors)])
+        fig.update_layout(
+            title="Top 50 Most Visited Articles",
+            title_x=0.5,
+            xaxis_title="Visited Article",
+            yaxis_title="Count (log-scale)",
+            font=dict(
+                family="Open Sans",
+                size=16,
+                color="RebeccaPurple"
+            ),
+            xaxis_tickangle=-90,
+        )
+        fig.update_yaxes(type="log", showgrid=True)
+        fig.write_html("html_plots/" + html_file_name)
 
 
 #################################################################################################
