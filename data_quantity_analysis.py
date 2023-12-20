@@ -165,7 +165,7 @@ def get_categories_art(
     categories_art = categories_art.values.flatten()
     categories_art = [cat for cat in categories_art if pd.notna(cat)]
     categories_art = list(set(categories_art))
-    if show == True:
+    if show:
         print(categories_art)
     return categories_art
 
