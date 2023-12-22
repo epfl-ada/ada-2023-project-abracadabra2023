@@ -7,14 +7,19 @@ from scipy.stats import linregress
 from collections import Counter
 from typing import Union
 
+import plotly.tools as tls
+import plotly.graph_objects as go
+import plotly.express as px
+
+
 __all__ = [
     "rating_vs_path_length",
     "path_duration_distribution",
     "path_length_vs_duration",
     "path_length_distribution",
     "most_visited_articles",
-    "top_100_visited_articles",
-    "top_100_target_articles",
+    "top_50_visited_articles",
+    "top_50_target_articles",
     "distribution_position_percentage",
     "count_in_out_neighbors",
     "get_categories_main_article",
@@ -139,7 +144,6 @@ def most_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
     plt.xlabel("Visited Article")
     plt.ylabel("Count")
     plt.title("Most Commonly Visited Articles")
-
     plt.xticks(rotation=45)  # Rotate x-axis labels for readability
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
@@ -150,8 +154,27 @@ def most_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
 #################################################################################################
 
 
-# Top 100 most visited articles
-def top_100_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
+# List of categories for an article
+def get_categories_art(
+    categories: pd.DataFrame,
+    cliche_article: str,
+    name_cat: Union[str, list[str]] = ["category1", "category2", "category3"],
+    show: bool = False
+) -> list[str]:
+    categories_art = categories.loc[categories["article"] == cliche_article, name_cat]
+    categories_art = categories_art.values.flatten()
+    categories_art = [cat for cat in categories_art if pd.notna(cat)]
+    categories_art = list(set(categories_art))
+    if show:
+        print(categories_art)
+    return categories_art
+
+
+#################################################################################################
+
+
+# Top 50 most visited articles
+def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False, html_file: bool = False, html_file_name: str = "top_50_visited_articles.html"):
     # Flatten the list of lists into a single list of visited articles
     flat_visited_articles = [
         article for path in paths_finished["path"] for article in path
@@ -160,25 +183,45 @@ def top_100_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
     # Count occurrences using Counter
     article_counts = Counter(flat_visited_articles)
 
-    # Get the 100 most common articles
-    top_100_articles = article_counts.most_common(100)
+    # Get the 50 most common articles
+    top_50_articles = article_counts.most_common(50)
 
-    print(top_100_articles)
+    print(top_50_articles)
     # Remove the tuple with the first element equal to '<'
     filtered_articles = [
-        (name, count) for (name, count) in top_100_articles if name != "<"
+        (name, count) for (name, count) in top_50_articles if name != "<"
     ]
     
     # Extract article names and counts
     article_names, article_counts = zip(*filtered_articles)
-
-    # Create a bar chart with the 100 most visited articles
-    plt.figure(figsize=(13, 6))
-    sns.barplot(x=article_names, y=article_counts, palette="coolwarm")
+    
+    # Get the categories of each article in the top 50 visited articles
+    categories_top_50_articles = list()
+    
+    for article in article_names:
+        cat_art = get_categories_art(categories, article, ["category1", "category2", "category3"], False)
+        categories_top_50_articles.append(cat_art)
+    
+    # Indices where there is the category 'Countries', i.e., Country articles
+    idx_countries = ['Countries' in categories_top_50_articles[i] for i in range(len(categories_top_50_articles))]
+    
+    article_names = np.array(article_names)
+    article_counts = np.array(article_counts)
+    
+    # We use a different color for Country article and non-country article
+    colors = ["red" if is_country else "skyblue" for is_country in idx_countries]
+    
+    # Print the number af occurrences of country article
+    print(article_counts[idx_countries].sum())
+    
+    # Create a bar chart with the 50 most visited articles
+    # Create a bar chart for articles about countries
+    fig = plt.figure(figsize=(13, 6))
+    plt.bar(article_names, article_counts, color=colors)
     plt.yscale("log")
     plt.xlabel("Visited Article")
-    plt.ylabel("Count")
-    plt.title("Top 100 Most Visited Articles")
+    plt.ylabel("Count (log-scale)")
+    plt.title("Top 50 Most Visited Articles")
     plt.rc("xtick", labelsize=7)
     plt.rc("ytick", labelsize=7)
     plt.xticks(rotation=90)  # Rotate x-axis labels for readability
@@ -187,28 +230,62 @@ def top_100_visited_articles(paths_finished: pd.DataFrame, show: bool = False):
     if show:
         plt.show()
 
+    if html_file:
+        # py_fig = tls.mpl_to_plotly(fig)
+        # # adapt the margin 
+        # py_fig.update_layout(margin=dict(l=20, r=20, t=20, b=20))
+        # py_fig.write_html("html_plots/" + html_file_name)
+        # do the same plot with plotly
+        fig = go.Figure(data=[go.Bar(x=article_names, y=article_counts, marker_color=colors)])
+        fig.update_layout(
+            title="Top 50 Most Visited Articles",
+            title_x=0.5,
+            xaxis_title="Visited Article",
+            yaxis_title="Count (log-scale)",
+            font=dict(
+                family="Open Sans",
+                size=16,
+                color="RebeccaPurple"
+            ),
+            xaxis_tickangle=-90,
+        )
+        fig.update_yaxes(type="log", showgrid=True)
+        fig.write_html("html_plots/" + html_file_name)
+
 
 #################################################################################################
 
 
-# Top 100 most common target in finished articles
-def top_100_target_articles(paths_finished: pd.DataFrame, show: bool = False):
+# Top 50 most common target in finished articles
+def top_50_target_articles(paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False):
     # Extract the last article as the target
     paths_finished["target_article"] = paths_finished["path"].str[-1]
 
     # Count the occurrences of each target article
     target_counts = paths_finished["target_article"].value_counts()
 
-    # Get the top 100 most common target articles
-    top_100_targets = target_counts.head(100)
+    # Get the top 50 most common target articles
+    top_50_targets = target_counts.head(50)
+    
+    # Get the categories of each article in the top 50 targets
+    categories_top_50_targets = list()
+    
+    for article in top_50_targets.index:
+        cat_art = get_categories_art(categories, article, ["category1", "category2", "category3"], False)
+        categories_top_50_targets.append(cat_art)
+    
+    # Indices where there is the category 'Countries', i.e., Country articles
+    idx_countries = ['Countries' in categories_top_50_targets[i] for i in range(len(categories_top_50_targets))]
+    # We use a different color for Country article and non-country article
+    colors = ["red" if is_country else "skyblue" for is_country in idx_countries]
 
     # Create a bar chart for the top 100 target articles
     plt.figure(figsize=(12, 6))
-    sns.barplot(x=top_100_targets.index, y=top_100_targets.values, palette="coolwarm")
+    plt.bar(top_50_targets.index, top_50_targets.values, color=colors)
     plt.yscale("log")
     plt.xlabel("Target Article")
-    plt.ylabel("Count")
-    plt.title("Top 100 Most Common Target Articles in Finished Paths")
+    plt.ylabel("Count (log-scale)")
+    plt.title("Top 50 Most Common Target Articles in Finished Paths")
     plt.rc("xtick", labelsize=7)
     plt.rc("ytick", labelsize=7)
     plt.xticks(rotation=90)  # Rotate x-axis labels for readability
@@ -423,23 +500,6 @@ def analyze_nearby_articles_at_different_distances(
 #################################################################################################
 
 
-# List of categories for a cliché article - here William Shakespeare is presented as an example
-def get_categories_art(
-    categories: pd.DataFrame,
-    cliche_article: str,
-    name_cat: Union[str, list[str]] = ["category1", "category2", "category3"],
-) -> list[str]:
-    categories_art = categories.loc[categories["article"] == cliche_article, name_cat]
-    categories_art = categories_art.values.flatten()
-    categories_art = [cat for cat in categories_art if pd.notna(cat)]
-    categories_art = list(set(categories_art))
-    print(categories_art)
-    return categories_art
-
-
-#################################################################################################
-
-
 # Combine all the results - show graphs for step 1, 2, 3 and combined - away from the article
 # in question (Here all articles that present United_Kingdom in their name) and show in a bar plot
 # the categories that coincide with those of the main article "UK" and the ones that do not. 
@@ -465,7 +525,7 @@ def combine_results(
     ) = analyze_nearby_articles_at_different_distances(
         paths_finished, main_article, namecat, categories, article_categories
     )
-    categories_art = get_categories_art(categories, "William_Shakespeare", namecat)
+    categories_art = get_categories_art(categories, "William_Shakespeare", namecat, True)
 
     # Combine results from all steps
     # William Shakespeare_

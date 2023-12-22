@@ -3,5 +3,5 @@
         "Salya",
         "Wikispeedia"
     ],
-    "ruff.enable": false,
+    // "ruff.enable": false,
 }
