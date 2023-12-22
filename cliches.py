@@ -15,6 +15,8 @@ __all__ = [
     "get_category_main_article",
     "get_index_main_article_in",
     "test_difference_path_length_cliche",
+    "top_k_categories",
+    "get_topics",
 ]
 
 
