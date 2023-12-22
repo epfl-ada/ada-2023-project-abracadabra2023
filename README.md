@@ -55,12 +55,8 @@ As stated above, we need to select some clichés independently from the dataset 
 
 
 ## Organization within the team:
-- Tudor: website, ML, code quality
+- Tudor: data augmentation, code quality
 - Anna: sublime plots, data story, data augmentation
 - Martin: statistical analysis and ML, code quality, data augmentation
 - Philippe: website, ML
 - Salya: data cleaning and pre-processing, data story
-
-
-## Questions for TAs:
-- Is ChatGPT enough to obtain clichés without being too subjective and biased?
