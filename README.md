@@ -1,9 +1,8 @@
-# Link to website
-https://philippe-s01.github.io/abracADAbra2023/
-
 # A world full of clichés
 
-_abracADAbra2023: Tudor Oancea, Anna Schmitt, Martin Leclercq, Philippe Servant, Salya Diallo_
+_Group abracADAbra2023: Tudor Oancea, Anna Schmitt, Martin Leclercq, Philippe Servant, Salya Diallo_
+
+[Here](https://philippe-s01.github.io/abracADAbra2023/) is our data story!
 
 ## Abstract:
 Clichés, in this context, refer to common ideas and concepts that quickly come to mind when thinking about a particular subject. In Wikispeedia, these clichés may manifest either as individual pages or as page categories typically associated with a shared concept and that players know should contain relevant hyperlinks for their target.
@@ -59,4 +58,4 @@ As stated above, we need to select some clichés independently from the dataset 
 - Anna: sublime plots, data story, data augmentation
 - Martin: statistical analysis and ML, code quality, data augmentation
 - Philippe: website, ML
-- Salya: data cleaning and pre-processing, data story
+- Salya: data story, vizualization for the data story
