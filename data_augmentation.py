@@ -13,8 +13,6 @@ from nltk.corpus import PlaintextCorpusReader, stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
-# from cliches import get_topics, top_k_categories
-
 # download if first time running library
 download = True
 

@@ -1,9 +1,6 @@
 import pandas as pd
 from urllib.parse import unquote
-import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import linregress
-from collections import Counter
 
 __all__ = [
     "graph_data_prefix_path",
