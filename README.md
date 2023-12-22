@@ -39,7 +39,7 @@ As stated above, we need to select some clichés independently from the dataset 
 - Browse the internet to find articles about clichés on our topic, for instance, there is exists a Wikipedia page about [Stereotypes of british people](https://en.wikipedia.org/wiki/Stereotypes_of_British_people). And then select the most relevant ones.
 - Finally, we find an external dataset called [SeeGULL](https://github.com/google-research-datasets/seegull) which measures the offensiveness of clichés on geographical identity groups. The stereotypes contained in the dataset were generated using PaLM and GPT-3. The interesting part for us is that it contains an identity group named 'British' with some possible stereotypes associated to it, and each of these stereotypes are humanly evaluated as stereotypical, non-stereotypical or unsure. Finally the annotators are divided between European and North-American people, this provides two point of view, one from the inside and one from the outside. Hence, We can use this dataset to select the most relevant clichés, while keeping in mind that it refers on British people and not on the United Kingdom.
 #### P3:
-- We finally decided to increase our set of clichés ourselves as described above in the methods. 
+- We finally decided to increase our set of clichés ourselves: using topic detection, proper nouns and shared hyperlinks, as described above in the methods. 
 
 
 ## Proposed timeline:
