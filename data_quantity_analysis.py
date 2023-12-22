@@ -28,6 +28,7 @@ __all__ = [
     "analyze_nearby_articles_at_different_distances",
     "get_categories_art",
     "combine_results",
+    "plot_most_frequent_articles",
 ]
 
 
@@ -159,7 +160,7 @@ def get_categories_art(
     categories: pd.DataFrame,
     cliche_article: str,
     name_cat: Union[str, list[str]] = ["category1", "category2", "category3"],
-    show: bool = False
+    show: bool = False,
 ) -> list[str]:
     categories_art = categories.loc[categories["article"] == cliche_article, name_cat]
     categories_art = categories_art.values.flatten()
@@ -174,7 +175,13 @@ def get_categories_art(
 
 
 # Top 50 most visited articles
-def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False, html_file: bool = False, html_file_name: str = "top_50_visited_articles.html"):
+def top_50_visited_articles(
+    paths_finished: pd.DataFrame,
+    categories: pd.DataFrame,
+    show: bool = False,
+    html_file: bool = False,
+    html_file_name: str = "top_50_visited_articles.html",
+):
     # Flatten the list of lists into a single list of visited articles
     flat_visited_articles = [
         article for path in paths_finished["path"] for article in path
@@ -191,29 +198,34 @@ def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFra
     filtered_articles = [
         (name, count) for (name, count) in top_50_articles if name != "<"
     ]
-    
+
     # Extract article names and counts
     article_names, article_counts = zip(*filtered_articles)
-    
+
     # Get the categories of each article in the top 50 visited articles
     categories_top_50_articles = list()
-    
+
     for article in article_names:
-        cat_art = get_categories_art(categories, article, ["category1", "category2", "category3"], False)
+        cat_art = get_categories_art(
+            categories, article, ["category1", "category2", "category3"], False
+        )
         categories_top_50_articles.append(cat_art)
-    
+
     # Indices where there is the category 'Countries', i.e., Country articles
-    idx_countries = ['Countries' in categories_top_50_articles[i] for i in range(len(categories_top_50_articles))]
-    
+    idx_countries = [
+        "Countries" in categories_top_50_articles[i]
+        for i in range(len(categories_top_50_articles))
+    ]
+
     article_names = np.array(article_names)
     article_counts = np.array(article_counts)
-    
+
     # We use a different color for Country article and non-country article
     colors = ["red" if is_country else "skyblue" for is_country in idx_countries]
-    
+
     # Print the number af occurrences of country article
     print(article_counts[idx_countries].sum())
-    
+
     # Create a bar chart with the 50 most visited articles
     # Create a bar chart for articles about countries
     fig = plt.figure(figsize=(13, 6))
@@ -232,21 +244,19 @@ def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFra
 
     if html_file:
         # py_fig = tls.mpl_to_plotly(fig)
-        # # adapt the margin 
+        # # adapt the margin
         # py_fig.update_layout(margin=dict(l=20, r=20, t=20, b=20))
         # py_fig.write_html("html_plots/" + html_file_name)
         # do the same plot with plotly
-        fig = go.Figure(data=[go.Bar(x=article_names, y=article_counts, marker_color=colors)])
+        fig = go.Figure(
+            data=[go.Bar(x=article_names, y=article_counts, marker_color=colors)]
+        )
         fig.update_layout(
             title="Top 50 Most Visited Articles",
             title_x=0.5,
             xaxis_title="Visited Article",
             yaxis_title="Count (log-scale)",
-            font=dict(
-                family="Open Sans",
-                size=16,
-                color="RebeccaPurple"
-            ),
+            font=dict(family="Open Sans", size=16, color="RebeccaPurple"),
             xaxis_tickangle=-90,
         )
         fig.update_yaxes(type="log", showgrid=True)
@@ -257,7 +267,9 @@ def top_50_visited_articles(paths_finished: pd.DataFrame, categories: pd.DataFra
 
 
 # Top 50 most common target in finished articles
-def top_50_target_articles(paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False):
+def top_50_target_articles(
+    paths_finished: pd.DataFrame, categories: pd.DataFrame, show: bool = False
+):
     # Extract the last article as the target
     paths_finished["target_article"] = paths_finished["path"].str[-1]
 
@@ -266,16 +278,21 @@ def top_50_target_articles(paths_finished: pd.DataFrame, categories: pd.DataFram
 
     # Get the top 50 most common target articles
     top_50_targets = target_counts.head(50)
-    
+
     # Get the categories of each article in the top 50 targets
     categories_top_50_targets = list()
-    
+
     for article in top_50_targets.index:
-        cat_art = get_categories_art(categories, article, ["category1", "category2", "category3"], False)
+        cat_art = get_categories_art(
+            categories, article, ["category1", "category2", "category3"], False
+        )
         categories_top_50_targets.append(cat_art)
-    
+
     # Indices where there is the category 'Countries', i.e., Country articles
-    idx_countries = ['Countries' in categories_top_50_targets[i] for i in range(len(categories_top_50_targets))]
+    idx_countries = [
+        "Countries" in categories_top_50_targets[i]
+        for i in range(len(categories_top_50_targets))
+    ]
     # We use a different color for Country article and non-country article
     colors = ["red" if is_country else "skyblue" for is_country in idx_countries]
 
@@ -372,8 +389,12 @@ def count_in_out_neighbors(
 
 
 # 1. Categories of the main article, in this milestone we consider UK
-def get_categories_main_article(main_article: str, name_cat: str, categories: pd.DataFrame) -> list[str]:
-    categories_main_article = categories.loc[categories["article"] == main_article, name_cat]
+def get_categories_main_article(
+    main_article: str, name_cat: str, categories: pd.DataFrame
+) -> list[str]:
+    categories_main_article = categories.loc[
+        categories["article"] == main_article, name_cat
+    ]
     categories_main_article = categories_main_article.values.flatten()
     categories_main_article = [cat for cat in categories_main_article if pd.notna(cat)]
     categories_main_article = list(set(categories_main_article))
@@ -384,7 +405,9 @@ def separate_categories(
     main_article: str,
     categories: pd.DataFrame,
 ) -> tuple[list[str], list[str], list[str], list[str]]:
-    cat_all = get_categories_main_article(main_article, ["category1", "category2", "category3"], categories)
+    cat_all = get_categories_main_article(
+        main_article, ["category1", "category2", "category3"], categories
+    )
     # print("All categories:", cat_all)
     subcat1 = get_categories_main_article(main_article, ["category1"], categories)
     # print("Category 1:", cat_1)
@@ -398,7 +421,7 @@ def separate_categories(
 #################################################################################################
 
 
-# 2. Function that looks at the categories from the articles at one, two, three steps from the 
+# 2. Function that looks at the categories from the articles at one, two, three steps from the
 # main_article, in this milestone it is UK, in the game path
 def analyze_articles_near(
     paths_finished: pd.DataFrame,
@@ -421,9 +444,7 @@ def analyze_articles_near(
 
             # Exclude the reference article
             articles_to_analyze = [
-                article
-                for article in articles_to_analyze
-                if article != main_article
+                article for article in articles_to_analyze if article != main_article
             ]
 
             # Collect the categories of the articles to analyze
@@ -502,7 +523,7 @@ def analyze_nearby_articles_at_different_distances(
 
 # Combine all the results - show graphs for step 1, 2, 3 and combined - away from the article
 # in question (Here all articles that present United_Kingdom in their name) and show in a bar plot
-# the categories that coincide with those of the main article "UK" and the ones that do not. 
+# the categories that coincide with those of the main article "UK" and the ones that do not.
 # Moreover: an arrow indicates the categories of the cliché chosen here above
 def combine_results(
     paths_finished: pd.DataFrame,
@@ -525,7 +546,9 @@ def combine_results(
     ) = analyze_nearby_articles_at_different_distances(
         paths_finished, main_article, namecat, categories, article_categories
     )
-    categories_art = get_categories_art(categories, "William_Shakespeare", namecat, True)
+    categories_art = get_categories_art(
+        categories, "William_Shakespeare", namecat, True
+    )
 
     # Combine results from all steps
     # William Shakespeare_
@@ -623,252 +646,29 @@ def combine_results(
     plt.show()
 
     return
-    
-    ####### 1 #######
-    
-    # Separate the categories and their counts
-    category_counts_1 = cat_count(results_1_step)
-
-    # non-coincide categories
-    category_ncounts_1 = cat_count(non1)
-
-    # Combine coincide and non-coincide counts for each step
-    combined_counts_1 = {
-        cat: category_counts_1.get(cat, 0) for cat in set(category_counts_1)
-    }
-    combined_ncounts_1 = {
-        cat: category_ncounts_1.get(cat, 0) for cat in set(category_ncounts_1)
-    }
-
-    # Create a combined bar plot for all steps
-    categories_list_1= sorted(
-        list(set(combined_counts_1.keys()) | set(combined_ncounts_1.keys()))
-    )
-    counts_1 = [combined_counts_1.get(cat, 0) for cat in categories_list_1]
-    ncounts_1 = [combined_ncounts_1.get(cat, 0) for cat in categories_list_1]
-    index_1 = np.arange(len(categories_list_1))
-
-    # Create a list of colors where highlighted categories are in a different color
-    # this helps position the arrow n the right bar for the plots below
-    # index_all = np.arange(len(categories_list_all))
-    bar_width = 0.35
-    bar_positions = index_1 + bar_width / 2
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(index_1, counts_1, color="skyblue", label="Coincide with UK")
-    plt.bar(
-        index_1 + bar_width,
-        ncounts_1,
-        color="lightcoral",
-        label="Do not coincide with UK",
-    )
-    plt.xlabel("Category")
-    plt.ylabel("Count")
-    plt.title("Category Counts for 1 Step")
-    plt.xticks(index_1 + bar_width / 2, categories_list_1, rotation=90, ha="right")
-    plt.ylim(0, max(counts_all) + 500)
-    plt.legend()
-    plt.rc("xtick", labelsize=6)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.tight_layout()
-
-    # Add arrows above bars corresponding to article_categories
-    for category in categories_art:
-        if category in categories_list_1:
-            category_index = categories_list_1.index(category)
-            arrow_position = bar_positions[category_index] + 0.5 * bar_width
-
-            # Check if the arrow will overlap with neighboring bars
-            if (
-                category_index > -1
-                and arrow_position - -1.1 < bar_positions[category_index - 1]
-            ):
-                arrow_position = bar_positions[category_index - 0] + 0.1
-            elif (
-                category_index < len(categories_list_1) - 0
-                and arrow_position + -1.1 > bar_positions[category_index]
-            ):
-                arrow_position = bar_positions[category_index + 0] - 0.1
-
-            plt.annotate(
-                "v",
-                xy=(
-                    arrow_position,
-                    max(counts_1[category_index], ncounts_1[category_index]) + 49,
-                ),
-                ha="center",
-                va="bottom",
-                color="red",
-                fontsize=11,
-            )
-
-    # Save the plot to a file
-    # plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
-    plt.show()
-    
-    ####### 2 #######
-    
-    # Separate the categories and their counts
-    category_counts_2 = cat_count(results_2_steps)
-
-    # non-coincide categories
-    category_ncounts_2 = cat_count(non2)
-
-    # Combine coincide and non-coincide counts for each step
-    combined_counts_2 = {
-        cat: category_counts_2.get(cat, 0) for cat in set(category_counts_2)
-    }
-    combined_ncounts_2 = {
-        cat: category_ncounts_2.get(cat, 0) for cat in set(category_ncounts_2)
-    }
-
-    # Create a combined bar plot for all steps
-    categories_list_2= sorted(
-        list(set(combined_counts_2.keys()) | set(combined_ncounts_2.keys()))
-    )
-    counts_2 = [combined_counts_2.get(cat, 0) for cat in categories_list_2]
-    ncounts_2 = [combined_ncounts_2.get(cat, 0) for cat in categories_list_2]
-    index_2 = np.arange(len(categories_list_2))
-
-    # Create a list of colors where highlighted categories are in a different color
-    # this helps position the arrow n the right bar for the plots below
-    # index_all = np.arange(len(categories_list_all))
-    bar_width = 0.35
-    bar_positions = index_2 + bar_width / 2
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(index_2, counts_2, color="skyblue", label="Coincide with UK")
-    plt.bar(
-        index_2 + bar_width,
-        ncounts_2,
-        color="lightcoral",
-        label="Do not coincide with UK",
-    )
-    plt.xlabel("Category")
-    plt.ylabel("Count")
-    plt.title("Category Counts for 2 Steps")
-    plt.xticks(index_2 + bar_width / 2, categories_list_2, rotation=90, ha="right")
-    plt.ylim(0, max(counts_all) + 500)
-    plt.legend()
-    plt.rc("xtick", labelsize=6)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.tight_layout()
-
-    # Add arrows above bars corresponding to article_categories
-    for category in categories_art:
-        if category in categories_list_2:
-            category_index = categories_list_2.index(category)
-            arrow_position = bar_positions[category_index] + 0.5 * bar_width
-
-            # Check if the arrow will overlap with neighboring bars
-            if (
-                category_index > -1
-                and arrow_position - -1.1 < bar_positions[category_index - 1]
-            ):
-                arrow_position = bar_positions[category_index - 0] + 0.1
-            elif (
-                category_index < len(categories_list_2) - 0
-                and arrow_position + -1.1 > bar_positions[category_index]
-            ):
-                arrow_position = bar_positions[category_index + 0] - 0.1
-
-            plt.annotate(
-                "v",
-                xy=(
-                    arrow_position,
-                    max(counts_2[category_index], ncounts_2[category_index]) + 49,
-                ),
-                ha="center",
-                va="bottom",
-                color="red",
-                fontsize=11,
-            )
-
-    # Save the plot to a file
-    # plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
-    plt.show()
-    
-    ####### 3 #######
-    
-    # Separate the categories and their counts
-    category_counts_3 = cat_count(results_3_steps)
-
-    # non-coincide categories
-    category_ncounts_3 = cat_count(non3)
-
-    # Combine coincide and non-coincide counts for each step
-    combined_counts_3 = {
-        cat: category_counts_3.get(cat, 0) for cat in set(category_counts_3)
-    }
-    combined_ncounts_3 = {
-        cat: category_ncounts_3.get(cat, 0) for cat in set(category_ncounts_3)
-    }
-
-    # Create a combined bar plot for all steps
-    categories_list_3= sorted(
-        list(set(combined_counts_3.keys()) | set(combined_ncounts_3.keys()))
-    )
-    counts_3 = [combined_counts_3.get(cat, 0) for cat in categories_list_3]
-    ncounts_3 = [combined_ncounts_3.get(cat, 0) for cat in categories_list_3]
-    index_3 = np.arange(len(categories_list_3))
-
-    # Create a list of colors where highlighted categories are in a different color
-    # this helps position the arrow n the right bar for the plots below
-    # index_all = np.arange(len(categories_list_all))
-    bar_width = 0.35
-    bar_positions = index_3 + bar_width / 2
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(index_3, counts_3, color="skyblue", label="Coincide with UK")
-    plt.bar(
-        index_3 + bar_width,
-        ncounts_3,
-        color="lightcoral",
-        label="Do not coincide with UK",
-    )
-    plt.xlabel("Category")
-    plt.ylabel("Count")
-    plt.title("Category Counts for 3 Steps")
-    plt.xticks(index_3 + bar_width / 2, categories_list_3, rotation=90, ha="right")
-    plt.ylim(0, max(counts_all) + 500)
-    plt.legend()
-    plt.rc("xtick", labelsize=6)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.tight_layout()
-
-    # Add arrows above bars corresponding to article_categories
-    for category in categories_art:
-        if category in categories_list_3:
-            category_index = categories_list_3.index(category)
-            arrow_position = bar_positions[category_index] + 0.5 * bar_width
-
-            # Check if the arrow will overlap with neighboring bars
-            if (
-                category_index > -1
-                and arrow_position - -1.1 < bar_positions[category_index - 1]
-            ):
-                arrow_position = bar_positions[category_index - 0] + 0.1
-            elif (
-                category_index < len(categories_list_3) - 0
-                and arrow_position + -1.1 > bar_positions[category_index]
-            ):
-                arrow_position = bar_positions[category_index + 0] - 0.1
-
-            plt.annotate(
-                "v",
-                xy=(
-                    arrow_position,
-                    max(counts_3[category_index], ncounts_3[category_index]) + 49,
-                ),
-                ha="center",
-                va="bottom",
-                color="red",
-                fontsize=11,
-            )
-
-    # Save the plot to a file
-    # plt.savefig("all_steps_plot_combined.png", bbox_inches="tight")
-    plt.show()
 
 
 #################################################################################################
+
+
+def plot_most_frequent_articles(
+    data: pd.Series, type: str, pct: float = 10, main_article: str = "United_Kingdom"
+):
+    """
+    plot most frequent articles that precede/follow main_article
+    input:
+        data: percentage of apparition of articles
+        type: precede/follow
+        main_article: main_article for selection of articles
+        pct: percentage of most frequent articles to display
+    """
+    most_frequent = data[data >= np.percentile(data, 100 - pct)]
+
+    plt.figure(figsize=(12, 5))
+    sns.barplot(x=most_frequent.index, y=most_frequent.values, palette="coolwarm")
+    plt.yscale("log")
+    plt.xlabel("most frequent articles")
+    plt.ylabel("%")
+    plt.title(f"Articles that {type} '{main_article}'")
+    plt.rc("xtick", labelsize=8)
+    plt.xticks(rotation=90)  # Rotate x-axis labels for readability
