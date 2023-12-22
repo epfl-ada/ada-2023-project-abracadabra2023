@@ -58,4 +58,4 @@ As stated above, we need to select some clichés independently from the dataset 
 - Anna: sublime plots, data story, data augmentation
 - Martin: statistical analysis and ML, code quality, data augmentation
 - Philippe: website, ML
-- Salya: data cleaning and pre-processing, data story
+- Salya: data story, vizualization for the data story
