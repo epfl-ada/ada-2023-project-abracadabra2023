@@ -15,7 +15,9 @@ The core concept of our project involves identifying sets of potential clichés 
 - How can we select the clichés of a given topic without being too much biased?
 - Do clichés influence our searching process when we know our goal?
 <!-- TODO: reformulate this 3rd question -->
-- Can clichés help us determine if some articles are badly written, that is if they need more hyperlinks? 
+- Can clichés help us determine if some articles are badly written, that is if they need more hyperlinks?
+#### P3:
+- Check our website to know more about the influence of clichés ! ;)
 
 
 ## Methods:
@@ -25,6 +27,11 @@ Before starting our initial analysis, we have to clean and pre-process our datas
 - Defining performance metrics based on actual success of the path, difficulty rating, length of the taken path, length of the actual shortest path, number of backtracks, etc.
 - Comparing the performance of games passing by the main unit and analyzing the correlation with the usage of the cliché’s units. By defining thresholds, we could compute binary classification metrics like precision, recall, etc.
 - (inverse problem) Find other sets of units that increase or decrease the precision / recall metrics and see whether these units are intuitively clichés or not.
+- Augmenting the data to perform analysis that are based on a significant set of clichés. This augmentation is explored through three different methods, mainly: topic detection, proper nouns and shared hyperlinks. 
+- Looking at the difference in path length for paths containing the article 'United_Kindom' if they pass through a cliché or not and perform statistical test to see if this difference is indeed significant. 
+- Deducing whether or not clichés have an effect on players' performance
+
+#### Further work:
 - A final step adressing the last one of our research questions would be to check if among the units (in particular pages) that we considered as clichés, there is an increased proportion of backtracks performed by the players (outlier detection based for example on one-class SVM). This would indicate that the players chose this page because they thought it will contain a certain hyperlink but it did not. We could then inspect the actual page content to look for words corresponding to clichés that should have been hyperlinked. Other analysis based on the future lectures could be performed to detect if the page is badly written (e.g. if it contains too many clichés, or if it is too long, etc.).
 
 ## Additional datasets:
@@ -32,6 +39,8 @@ As stated above, we need to select some clichés independently from the dataset 
 - We can use the ChatGPT model to generate clichés using different prompts. We can then select the most relevant ones.
 - Browse the internet to find articles about clichés on our topic, for instance, there is exists a Wikipedia page about [Stereotypes of british people](https://en.wikipedia.org/wiki/Stereotypes_of_British_people). And then select the most relevant ones.
 - Finally, we find an external dataset called [SeeGULL](https://github.com/google-research-datasets/seegull) which measures the offensiveness of clichés on geographical identity groups. The stereotypes contained in the dataset were generated using PaLM and GPT-3. The interesting part for us is that it contains an identity group named 'British' with some possible stereotypes associated to it, and each of these stereotypes are humanly evaluated as stereotypical, non-stereotypical or unsure. Finally the annotators are divided between European and North-American people, this provides two point of view, one from the inside and one from the outside. Hence, We can use this dataset to select the most relevant clichés, while keeping in mind that it refers on British people and not on the United Kingdom.
+#### P3:
+- We finally decided to increase our set of clichés ourselves as described above in the methods. 
 
 
 ## Proposed timeline:
@@ -47,8 +56,8 @@ As stated above, we need to select some clichés independently from the dataset 
 
 ## Organization within the team:
 - Tudor: website, ML, code quality
-- Anna: sublime plots, data story
-- Martin: statistical analysis and ML, code quality
+- Anna: sublime plots, data story, data augmentation
+- Martin: statistical analysis and ML, code quality, data augmentation
 - Philippe: website, ML
 - Salya: data cleaning and pre-processing, data story
 
