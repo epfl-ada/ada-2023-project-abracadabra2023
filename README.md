@@ -1,9 +1,8 @@
-# Link to website
-https://philippe-s01.github.io/abracADAbra2023/
-
 # A world full of clichés
 
-_abracADAbra2023: Tudor Oancea, Anna Schmitt, Martin Leclercq, Philippe Servant, Salya Diallo_
+_Group abracADAbra2023: Tudor Oancea, Anna Schmitt, Martin Leclercq, Philippe Servant, Salya Diallo_
+
+[Project website](https://philippe-s01.github.io/abracADAbra2023/)
 
 ## Abstract:
 Clichés, in this context, refer to common ideas and concepts that quickly come to mind when thinking about a particular subject. In Wikispeedia, these clichés may manifest either as individual pages or as page categories typically associated with a shared concept and that players know should contain relevant hyperlinks for their target.
